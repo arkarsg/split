@@ -9,6 +9,37 @@ import (
 	"context"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+  username, email
+) VALUES (
+  $1, $2
+)
+RETURNING id, username, email
+`
+
+type CreateUserParams struct {
+	Username string
+	Email    string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Email)
+	var i User
+	err := row.Scan(&i.ID, &i.Username, &i.Email)
+	return i, err
+}
+
+const deleteAuthor = `-- name: DeleteAuthor :exec
+DELETE FROM users
+WHERE id = $1
+`
+
+func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
+	return err
+}
+
 const getUserById = `-- name: GetUserById :one
 SELECT id, username, email FROM users
 WHERE id = $1 LIMIT 1
@@ -19,4 +50,39 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 	var i User
 	err := row.Scan(&i.ID, &i.Username, &i.Email)
 	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, username, email FROM users
+ORDER BY username
+LIMIT $1
+OFFSET $2
+`
+
+type ListUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(&i.ID, &i.Username, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
