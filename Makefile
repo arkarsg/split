@@ -8,4 +8,6 @@ migrateup:
 	migrate -path db/migrations -database "postgresql://root:password@localhost:5432/split_app?sslmode=disable" -verbose up
 migratedown:
 	migrate -path db/migrations -database "postgresql://root:password@localhost:5432/split_app?sslmode=disable" -verbose down
-.PHONY: postgres createdb dropdb migrateup migratedown
+sqlc:
+	sqlc generate
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc

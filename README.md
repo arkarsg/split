@@ -19,5 +19,15 @@ Track credits and debts among your friends.
 
 # Notes
 
-## `Makefile`
+### `Makefile`
 - Useful `make` commands to set up your dev env
+
+### `migrate`
+> *Migrate up* and *migrate down* are included in `Makefile
+
+**Migrate up**
+`sslmode=disabled` is necessary as SSL is not enabled on the `pgsql` server by default
+
+```bash
+migrate -path db/migrations -database "postgresql://root:password@localhost:5432/split_app?sslmode=disabled" -verbose up
+```
