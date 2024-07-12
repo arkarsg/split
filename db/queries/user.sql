@@ -16,6 +16,6 @@ INSERT INTO users (
 )
 RETURNING *;
 
--- name: DeleteAuthor :exec
+-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
