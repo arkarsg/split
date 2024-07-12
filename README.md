@@ -16,6 +16,7 @@ Track credits and debts among your friends.
 | Tool | Purpose |
 |--|--|
 | [`migrate`](https://github.com/golang-migrate/migrate) | Schema migration |
+| [`sqlc`](https://github.com/sqlc-dev/sqlc) | ORM |
 
 # Notes
 
@@ -31,3 +32,7 @@ Track credits and debts among your friends.
 ```bash
 migrate -path db/migrations -database "postgresql://root:password@localhost:5432/split_app?sslmode=disabled" -verbose up
 ```
+
+### ORMs
+`sqlc` was used as an ORM for Go.
+
