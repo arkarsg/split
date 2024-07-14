@@ -20,11 +20,11 @@ CREATE TABLE "transactions" (
 
 
 CREATE TABLE "debt_debtors" (
-  "id" bigserial PRIMARY KEY,
   "transaction_id" bigserial NOT NULL,
   "debtor_id" bigserial NOT NULL,
   "amount" numeric(18,8) NOT NULL,
-  "currency" Currency NOT NULL
+  "currency" Currency NOT NULL,
+  PRIMARY KEY (transaction_id, debtor_id)
 );
 
 CREATE TABLE "payments" (

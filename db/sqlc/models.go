@@ -53,7 +53,6 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 }
 
 type DebtDebtor struct {
-	ID            int64
 	TransactionID int64
 	DebtorID      int64
 	Amount        string
