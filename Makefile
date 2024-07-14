@@ -10,4 +10,6 @@ migratedown:
 	migrate -path db/migrations -database "postgresql://root:password@localhost:5432/split_app?sslmode=disable" -verbose down
 sqlc:
 	sqlc generate
+test:
+	go test -v -cover ./...
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc
