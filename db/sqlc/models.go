@@ -71,6 +71,7 @@ type Payment struct {
 	DebtorID  int64
 	Amount    string
 	CreatedAt time.Time
+	Currency  Currency
 }
 
 type Transaction struct {

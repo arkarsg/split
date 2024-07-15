@@ -20,7 +20,7 @@ INSERT INTO payments (
     $2,
     $3
 )
-RETURNING id, debt_id, debtor_id, amount, created_at
+RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type CreatePaymentParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (P
 		&i.DebtorID,
 		&i.Amount,
 		&i.CreatedAt,
+		&i.Currency,
 	)
 	return i, err
 }
@@ -53,7 +54,7 @@ func (q *Queries) DeletePayment(ctx context.Context, id int64) error {
 }
 
 const getPaymentsByDebtId = `-- name: GetPaymentsByDebtId :many
-SELECT id, debt_id, debtor_id, amount, created_at FROM payments
+SELECT id, debt_id, debtor_id, amount, created_at, currency FROM payments
 WHERE debt_id = $1
 `
 
@@ -72,6 +73,7 @@ func (q *Queries) GetPaymentsByDebtId(ctx context.Context, debtID int64) ([]Paym
 			&i.DebtorID,
 			&i.Amount,
 			&i.CreatedAt,
+			&i.Currency,
 		); err != nil {
 			return nil, err
 		}
@@ -87,7 +89,7 @@ func (q *Queries) GetPaymentsByDebtId(ctx context.Context, debtID int64) ([]Paym
 }
 
 const getPaymentsByDebtorId = `-- name: GetPaymentsByDebtorId :many
-SELECT id, debt_id, debtor_id, amount, created_at FROM payments
+SELECT id, debt_id, debtor_id, amount, created_at, currency FROM payments
 WHERE debtor_id = $1
 `
 
@@ -106,6 +108,7 @@ func (q *Queries) GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]
 			&i.DebtorID,
 			&i.Amount,
 			&i.CreatedAt,
+			&i.Currency,
 		); err != nil {
 			return nil, err
 		}
@@ -121,7 +124,7 @@ func (q *Queries) GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]
 }
 
 const getPaymentsById = `-- name: GetPaymentsById :one
-SELECT id, debt_id, debtor_id, amount, created_at FROM payments
+SELECT id, debt_id, debtor_id, amount, created_at, currency FROM payments
 WHERE id = $1 LIMIT 1
 `
 
@@ -134,6 +137,7 @@ func (q *Queries) GetPaymentsById(ctx context.Context, id int64) (Payment, error
 		&i.DebtorID,
 		&i.Amount,
 		&i.CreatedAt,
+		&i.Currency,
 	)
 	return i, err
 }
@@ -142,7 +146,7 @@ const updatePayment = `-- name: UpdatePayment :one
 UPDATE payments
 SET amount = coalesce($1, amount)
 WHERE debt_id = $2 AND debtor_id = $3
-RETURNING id, debt_id, debtor_id, amount, created_at
+RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type UpdatePaymentParams struct {
@@ -160,6 +164,7 @@ func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (P
 		&i.DebtorID,
 		&i.Amount,
 		&i.CreatedAt,
+		&i.Currency,
 	)
 	return i, err
 }

@@ -14,7 +14,7 @@ func TestCreateUser(t *testing.T) {
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	}
-	user, err := CreateRandomAccount(test_input)
+	user, err := CreateRandomUser(test_input)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 	assert.Equal(t, test_input.Username, user.Username)
@@ -27,7 +27,7 @@ func TestGetUserById(t *testing.T) {
 		Email:    u.RandomEmail(),
 	}
 
-	expectedUser, _ := CreateRandomAccount(test_input)
+	expectedUser, _ := CreateRandomUser(test_input)
 	actualUser, err := testQueries.GetUserById(
 		context.Background(),
 		expectedUser.ID,
@@ -43,7 +43,7 @@ func TestGetUserByUsername(t *testing.T) {
 		Email:    u.RandomEmail(),
 	}
 
-	expectedUser, _ := CreateRandomAccount(test_input)
+	expectedUser, _ := CreateRandomUser(test_input)
 	actualUser, err := testQueries.GetUserByUsername(
 		context.Background(),
 		expectedUser.Username,
@@ -68,7 +68,7 @@ func TestDeleteUser(t *testing.T) {
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	}
-	testUser, _ := CreateRandomAccount(testUserParams)
+	testUser, _ := CreateRandomUser(testUserParams)
 	err := testQueries.DeleteUser(context.Background(), testUser.ID)
 	require.NoError(t, err)
 
