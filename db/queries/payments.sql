@@ -2,11 +2,13 @@
 INSERT INTO payments (
     debt_id,
     debtor_id,
-    amount
+    amount,
+    currency
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 RETURNING *;
 
@@ -24,7 +26,8 @@ WHERE debtor_id = $1;
 
 -- name: UpdatePayment :one
 UPDATE payments
-SET amount = coalesce(sqlc.narg('amount'), amount)
+SET amount = coalesce(sqlc.narg('amount'), amount),
+    currency = coalesc(sqlc.narg('currency'), currency)
 WHERE debt_id = sqlc.arg('debtId') AND debtor_id = sqlc.arg('debtorId')
 RETURNING *;
 

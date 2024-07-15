@@ -14,11 +14,13 @@ const createPayment = `-- name: CreatePayment :one
 INSERT INTO payments (
     debt_id,
     debtor_id,
-    amount
+    amount,
+    currency
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
@@ -27,10 +29,16 @@ type CreatePaymentParams struct {
 	DebtID   int64
 	DebtorID int64
 	Amount   string
+	Currency Currency
 }
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, createPayment, arg.DebtID, arg.DebtorID, arg.Amount)
+	row := q.db.QueryRowContext(ctx, createPayment,
+		arg.DebtID,
+		arg.DebtorID,
+		arg.Amount,
+		arg.Currency,
+	)
 	var i Payment
 	err := row.Scan(
 		&i.ID,
@@ -144,19 +152,26 @@ func (q *Queries) GetPaymentsById(ctx context.Context, id int64) (Payment, error
 
 const updatePayment = `-- name: UpdatePayment :one
 UPDATE payments
-SET amount = coalesce($1, amount)
-WHERE debt_id = $2 AND debtor_id = $3
+SET amount = coalesce($1, amount),
+    currency = coalesc($2, currency)
+WHERE debt_id = $3 AND debtor_id = $4
 RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type UpdatePaymentParams struct {
 	Amount   sql.NullString
+	Currency interface{}
 	DebtId   int64
 	DebtorId int64
 }
 
 func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, updatePayment, arg.Amount, arg.DebtId, arg.DebtorId)
+	row := q.db.QueryRowContext(ctx, updatePayment,
+		arg.Amount,
+		arg.Currency,
+		arg.DebtId,
+		arg.DebtorId,
+	)
 	var i Payment
 	err := row.Scan(
 		&i.ID,
