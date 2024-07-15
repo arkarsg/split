@@ -9,17 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomAccount(test_input CreateUserParams) (User, error) {
-	user, err := testQueries.CreateUser(context.Background(), test_input)
-	return user, err
-}
-
 func TestCreateUser(t *testing.T) {
 	test_input := CreateUserParams{
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	}
-	user, err := createRandomAccount(test_input)
+	user, err := CreateRandomAccount(test_input)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 	assert.Equal(t, test_input.Username, user.Username)
@@ -32,7 +27,7 @@ func TestGetUserById(t *testing.T) {
 		Email:    u.RandomEmail(),
 	}
 
-	expectedUser, _ := createRandomAccount(test_input)
+	expectedUser, _ := CreateRandomAccount(test_input)
 	actualUser, err := testQueries.GetUserById(
 		context.Background(),
 		expectedUser.ID,
@@ -48,7 +43,7 @@ func TestGetUserByUsername(t *testing.T) {
 		Email:    u.RandomEmail(),
 	}
 
-	expectedUser, _ := createRandomAccount(test_input)
+	expectedUser, _ := CreateRandomAccount(test_input)
 	actualUser, err := testQueries.GetUserByUsername(
 		context.Background(),
 		expectedUser.Username,
@@ -73,7 +68,7 @@ func TestDeleteUser(t *testing.T) {
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	}
-	testUser, _ := createRandomAccount(testUserParams)
+	testUser, _ := CreateRandomAccount(testUserParams)
 	err := testQueries.DeleteUser(context.Background(), testUser.ID)
 	require.NoError(t, err)
 
