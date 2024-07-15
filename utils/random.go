@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,4 +39,10 @@ func RandomUser() string {
 func RandomEmail() string {
 	prefix := RandomString(6)
 	return prefix + "@test.com"
+}
+
+func RandomAmount() string {
+	n := RandomInt(10, 100)
+	amt := strconv.Itoa(int(n))
+	return amt + ".00"
 }
