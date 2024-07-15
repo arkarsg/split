@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	u "github.com/arkarsg/splitapp/utils"
@@ -57,6 +58,16 @@ func createRandomTransaction() Transaction {
 	return transaction
 }
 
+func TestGetTransactionById(t *testing.T) {
+	expectedTxn := createRandomTransaction()
+	actualTxn, err := testQueries.GetTransactionById(
+		context.Background(),
+		expectedTxn.ID,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, expectedTxn, actualTxn)
+}
+
 func TestGetTransactionByPayer(t *testing.T) {
 	txn := createRandomTransaction()
 	getQueryParams := GetTransactionsByPayerParams{
@@ -78,4 +89,22 @@ func TestGetTransactionByPayer(t *testing.T) {
 	require.NotEmpty(t, txnRows)
 	require.Len(t, txnRows, 1)
 	assert.Equal(t, payer.Username, txnRows[0].PayerUsername)
+}
+
+func TestUpdateTransaction(t *testing.T) {
+	txn := createRandomTransaction()
+	updateTxnParmas := UpdateTransactionParams{
+		Title: sql.NullString{
+			String: u.RandomString(10),
+			Valid:  true,
+		},
+		ID: txn.ID,
+	}
+	updatedTxn, err := testQueries.UpdateTransaction(
+		context.Background(),
+		updateTxnParmas,
+	)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedTxn)
+	assert.NotEqual(t, txn.Title, updatedTxn.Title)
 }

@@ -39,7 +39,7 @@ UPDATE transactions
 SET amount = coalesce(sqlc.narg('amount'), amount),
     currency = coalesce(sqlc.narg('currency'), currency),
     title = coalesce(sqlc.narg('title'), title)
-WHERE id = sqlc.arg('id') AND payer_id = sqlc.arg('payer_id')
+WHERE id = sqlc.arg('id')
 RETURNING *;
 
 -- name: DeleteTransaction :exec
