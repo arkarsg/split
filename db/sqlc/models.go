@@ -52,19 +52,25 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 	return string(ns.Currency), nil
 }
 
-type DebtDebtor struct {
+type Debt struct {
+	ID            int64
 	TransactionID int64
-	DebtorID      int64
-	Amount        string
-	Currency      Currency
+	SettledAmount string
+}
+
+type DebtDebtor struct {
+	DebtID   int64
+	DebtorID int64
+	Amount   string
+	Currency Currency
 }
 
 type Payment struct {
-	ID            int64
-	TransactionID int64
-	DebtorID      int64
-	Amount        string
-	CreatedAt     time.Time
+	ID        int64
+	DebtID    int64
+	DebtorID  int64
+	Amount    string
+	CreatedAt time.Time
 }
 
 type Transaction struct {

@@ -12,7 +12,7 @@ import (
 
 const createDebtDebtors = `-- name: CreateDebtDebtors :one
 INSERT INTO debt_debtors (
-    transaction_id,
+    debt_id,
     debtor_id,
     amount,
     currency
@@ -22,26 +22,26 @@ INSERT INTO debt_debtors (
     $3,
     $4
 )
-RETURNING transaction_id, debtor_id, amount, currency
+RETURNING debt_id, debtor_id, amount, currency
 `
 
 type CreateDebtDebtorsParams struct {
-	TransactionID int64
-	DebtorID      int64
-	Amount        string
-	Currency      Currency
+	DebtID   int64
+	DebtorID int64
+	Amount   string
+	Currency Currency
 }
 
 func (q *Queries) CreateDebtDebtors(ctx context.Context, arg CreateDebtDebtorsParams) (DebtDebtor, error) {
 	row := q.db.QueryRowContext(ctx, createDebtDebtors,
-		arg.TransactionID,
+		arg.DebtID,
 		arg.DebtorID,
 		arg.Amount,
 		arg.Currency,
 	)
 	var i DebtDebtor
 	err := row.Scan(
-		&i.TransactionID,
+		&i.DebtID,
 		&i.DebtorID,
 		&i.Amount,
 		&i.Currency,
@@ -51,31 +51,31 @@ func (q *Queries) CreateDebtDebtors(ctx context.Context, arg CreateDebtDebtorsPa
 
 const deleteDebtDebtor = `-- name: DeleteDebtDebtor :exec
 DELETE FROM debt_debtors
-WHERE transaction_id = $1 AND debtor_id = $2
+WHERE debt_id = $1 AND debtor_id = $2
 `
 
 type DeleteDebtDebtorParams struct {
-	TransactionID int64
-	DebtorID      int64
+	DebtID   int64
+	DebtorID int64
 }
 
 func (q *Queries) DeleteDebtDebtor(ctx context.Context, arg DeleteDebtDebtorParams) error {
-	_, err := q.db.ExecContext(ctx, deleteDebtDebtor, arg.TransactionID, arg.DebtorID)
+	_, err := q.db.ExecContext(ctx, deleteDebtDebtor, arg.DebtID, arg.DebtorID)
 	return err
 }
 
-const getDebtDebtorsByTransactionAndDebtor = `-- name: GetDebtDebtorsByTransactionAndDebtor :many
-SELECT transaction_id, debtor_id, amount, currency FROM debt_debtors
-WHERE transaction_id = $1 AND debtor_id = $2
+const getDebtDebtorsByDebtAndDebtor = `-- name: GetDebtDebtorsByDebtAndDebtor :many
+SELECT debt_id, debtor_id, amount, currency FROM debt_debtors
+WHERE debt_id = $1 AND debtor_id = $2
 `
 
-type GetDebtDebtorsByTransactionAndDebtorParams struct {
-	TransactionID int64
-	DebtorID      int64
+type GetDebtDebtorsByDebtAndDebtorParams struct {
+	DebtID   int64
+	DebtorID int64
 }
 
-func (q *Queries) GetDebtDebtorsByTransactionAndDebtor(ctx context.Context, arg GetDebtDebtorsByTransactionAndDebtorParams) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByTransactionAndDebtor, arg.TransactionID, arg.DebtorID)
+func (q *Queries) GetDebtDebtorsByDebtAndDebtor(ctx context.Context, arg GetDebtDebtorsByDebtAndDebtorParams) ([]DebtDebtor, error) {
+	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByDebtAndDebtor, arg.DebtID, arg.DebtorID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (q *Queries) GetDebtDebtorsByTransactionAndDebtor(ctx context.Context, arg 
 	for rows.Next() {
 		var i DebtDebtor
 		if err := rows.Scan(
-			&i.TransactionID,
+			&i.DebtID,
 			&i.DebtorID,
 			&i.Amount,
 			&i.Currency,
@@ -102,13 +102,13 @@ func (q *Queries) GetDebtDebtorsByTransactionAndDebtor(ctx context.Context, arg 
 	return items, nil
 }
 
-const getDebtDebtorsByTransactionId = `-- name: GetDebtDebtorsByTransactionId :many
-SELECT transaction_id, debtor_id, amount, currency FROM debt_debtors
-WHERE transaction_id = $1
+const getDebtDebtorsByDebtId = `-- name: GetDebtDebtorsByDebtId :many
+SELECT debt_id, debtor_id, amount, currency FROM debt_debtors
+WHERE debt_id = $1
 `
 
-func (q *Queries) GetDebtDebtorsByTransactionId(ctx context.Context, transactionID int64) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByTransactionId, transactionID)
+func (q *Queries) GetDebtDebtorsByDebtId(ctx context.Context, debtID int64) ([]DebtDebtor, error) {
+	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByDebtId, debtID)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (q *Queries) GetDebtDebtorsByTransactionId(ctx context.Context, transaction
 	for rows.Next() {
 		var i DebtDebtor
 		if err := rows.Scan(
-			&i.TransactionID,
+			&i.DebtID,
 			&i.DebtorID,
 			&i.Amount,
 			&i.Currency,
@@ -136,7 +136,7 @@ func (q *Queries) GetDebtDebtorsByTransactionId(ctx context.Context, transaction
 }
 
 const getDebtsOfDebtorId = `-- name: GetDebtsOfDebtorId :many
-SELECT transaction_id, debtor_id, amount, currency FROM debt_debtors
+SELECT debt_id, debtor_id, amount, currency FROM debt_debtors
 WHERE debtor_id = $1
 `
 
@@ -150,7 +150,7 @@ func (q *Queries) GetDebtsOfDebtorId(ctx context.Context, debtorID int64) ([]Deb
 	for rows.Next() {
 		var i DebtDebtor
 		if err := rows.Scan(
-			&i.TransactionID,
+			&i.DebtID,
 			&i.DebtorID,
 			&i.Amount,
 			&i.Currency,
@@ -172,27 +172,27 @@ const updateDebtDebtor = `-- name: UpdateDebtDebtor :one
 UPDATE debt_debtors
 SET amount = coalesce($1, amount),
     currency = coalesce($2, currency)
-WHERE transaction_id = $3 AND debtor_id = $4
-RETURNING transaction_id, debtor_id, amount, currency
+WHERE debt_id = $3 AND debtor_id = $4
+RETURNING debt_id, debtor_id, amount, currency
 `
 
 type UpdateDebtDebtorParams struct {
-	Amount        sql.NullString
-	Currency      NullCurrency
-	TransactionId int64
-	DebtorId      int64
+	Amount   sql.NullString
+	Currency NullCurrency
+	DebtId   int64
+	DebtorId int64
 }
 
 func (q *Queries) UpdateDebtDebtor(ctx context.Context, arg UpdateDebtDebtorParams) (DebtDebtor, error) {
 	row := q.db.QueryRowContext(ctx, updateDebtDebtor,
 		arg.Amount,
 		arg.Currency,
-		arg.TransactionId,
+		arg.DebtId,
 		arg.DebtorId,
 	)
 	var i DebtDebtor
 	err := row.Scan(
-		&i.TransactionID,
+		&i.DebtID,
 		&i.DebtorID,
 		&i.Amount,
 		&i.Currency,

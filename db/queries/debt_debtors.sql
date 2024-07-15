@@ -1,6 +1,6 @@
 -- name: CreateDebtDebtors :one
 INSERT INTO debt_debtors (
-    transaction_id,
+    debt_id,
     debtor_id,
     amount,
     currency
@@ -12,25 +12,25 @@ INSERT INTO debt_debtors (
 )
 RETURNING *;
 
--- name: GetDebtDebtorsByTransactionId :many
+-- name: GetDebtDebtorsByDebtId :many
 SELECT * FROM debt_debtors
-WHERE transaction_id = $1;
+WHERE debt_id = $1;
 
 -- name: GetDebtsOfDebtorId :many
 SELECT * FROM debt_debtors
 WHERE debtor_id = $1;
 
--- name: GetDebtDebtorsByTransactionAndDebtor :many
+-- name: GetDebtDebtorsByDebtAndDebtor :many
 SELECT * FROM debt_debtors
-WHERE transaction_id = $1 AND debtor_id = $2;
+WHERE debt_id = $1 AND debtor_id = $2;
 
 -- name: UpdateDebtDebtor :one
 UPDATE debt_debtors
 SET amount = coalesce(sqlc.narg('amount'), amount),
     currency = coalesce(sqlc.narg('currency'), currency)
-WHERE transaction_id = sqlc.arg('transactionId') AND debtor_id = sqlc.arg('debtorId')
+WHERE debt_id = sqlc.arg('debtId') AND debtor_id = sqlc.arg('debtorId')
 RETURNING *;
 
 -- name: DeleteDebtDebtor :exec
 DELETE FROM debt_debtors
-WHERE transaction_id = $1 AND debtor_id = $2;
+WHERE debt_id = $1 AND debtor_id = $2;
