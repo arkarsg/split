@@ -108,3 +108,20 @@ func TestUpdateTransaction(t *testing.T) {
 	require.NotEmpty(t, updatedTxn)
 	assert.NotEqual(t, txn.Title, updatedTxn.Title)
 }
+
+func TestDeleteTransaction(t *testing.T) {
+	txn := createRandomTransaction()
+	var err error
+	err = testQueries.DeleteTransaction(
+		context.Background(),
+		txn.ID,
+	)
+	require.NoError(t, err)
+
+	deletedTxn, err := testQueries.GetTransactionById(
+		context.Background(),
+		txn.ID,
+	)
+	require.Error(t, err)
+	require.Empty(t, deletedTxn)
+}
