@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createPayment = `-- name: CreatePayment :one
@@ -26,11 +27,11 @@ RETURNING id, transaction_id, debtor_id, amount, created_at
 type CreatePaymentParams struct {
 	TransactionID int64
 	DebtorID      int64
-	Amount        string
+	Amount        pgtype.Numeric
 }
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, createPayment, arg.TransactionID, arg.DebtorID, arg.Amount)
+	row := q.db.QueryRow(ctx, createPayment, arg.TransactionID, arg.DebtorID, arg.Amount)
 	var i Payment
 	err := row.Scan(
 		&i.ID,
@@ -48,7 +49,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeletePayment(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deletePayment, id)
+	_, err := q.db.Exec(ctx, deletePayment, id)
 	return err
 }
 
@@ -58,7 +59,7 @@ WHERE debtor_id = $1
 `
 
 func (q *Queries) GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]Payment, error) {
-	rows, err := q.db.QueryContext(ctx, getPaymentsByDebtorId, debtorID)
+	rows, err := q.db.Query(ctx, getPaymentsByDebtorId, debtorID)
 	if err != nil {
 		return nil, err
 	}
@@ -77,9 +78,6 @@ func (q *Queries) GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -92,7 +90,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPaymentsById(ctx context.Context, id int64) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, getPaymentsById, id)
+	row := q.db.QueryRow(ctx, getPaymentsById, id)
 	var i Payment
 	err := row.Scan(
 		&i.ID,
@@ -110,7 +108,7 @@ WHERE transaction_id = $1
 `
 
 func (q *Queries) GetPaymentsByTransactionId(ctx context.Context, transactionID int64) ([]Payment, error) {
-	rows, err := q.db.QueryContext(ctx, getPaymentsByTransactionId, transactionID)
+	rows, err := q.db.Query(ctx, getPaymentsByTransactionId, transactionID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +127,6 @@ func (q *Queries) GetPaymentsByTransactionId(ctx context.Context, transactionID 
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -146,13 +141,13 @@ RETURNING id, transaction_id, debtor_id, amount, created_at
 `
 
 type UpdatePaymentParams struct {
-	Amount        sql.NullString
+	Amount        pgtype.Numeric
 	TransactionId int64
 	DebtorId      int64
 }
 
 func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, updatePayment, arg.Amount, arg.TransactionId, arg.DebtorId)
+	row := q.db.QueryRow(ctx, updatePayment, arg.Amount, arg.TransactionId, arg.DebtorId)
 	var i Payment
 	err := row.Scan(
 		&i.ID,

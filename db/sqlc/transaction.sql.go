@@ -7,8 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createTransaction = `-- name: CreateTransaction :one
@@ -27,14 +27,14 @@ RETURNING id, amount, currency, title, created_at, payer_id
 `
 
 type CreateTransactionParams struct {
-	Amount   string
+	Amount   pgtype.Numeric
 	Currency Currency
 	Title    string
 	PayerID  int64
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
-	row := q.db.QueryRowContext(ctx, createTransaction,
+	row := q.db.QueryRow(ctx, createTransaction,
 		arg.Amount,
 		arg.Currency,
 		arg.Title,
@@ -58,7 +58,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteTransaction(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteTransaction, id)
+	_, err := q.db.Exec(ctx, deleteTransaction, id)
 	return err
 }
 
@@ -68,7 +68,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetTransactionById(ctx context.Context, id int64) (Transaction, error) {
-	row := q.db.QueryRowContext(ctx, getTransactionById, id)
+	row := q.db.QueryRow(ctx, getTransactionById, id)
 	var i Transaction
 	err := row.Scan(
 		&i.ID,
@@ -108,16 +108,16 @@ type GetTransactionsByPayerParams struct {
 
 type GetTransactionsByPayerRow struct {
 	TransactionID        int64
-	TransactionAmount    string
+	TransactionAmount    pgtype.Numeric
 	TransactionCurrency  Currency
 	TransactionTitle     string
-	TransactionCreatedAt time.Time
+	TransactionCreatedAt pgtype.Timestamp
 	PayerID              int64
 	PayerUsername        string
 }
 
 func (q *Queries) GetTransactionsByPayer(ctx context.Context, arg GetTransactionsByPayerParams) ([]GetTransactionsByPayerRow, error) {
-	rows, err := q.db.QueryContext(ctx, getTransactionsByPayer, arg.PayerID, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getTransactionsByPayer, arg.PayerID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -138,9 +138,6 @@ func (q *Queries) GetTransactionsByPayer(ctx context.Context, arg GetTransaction
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -157,15 +154,15 @@ RETURNING id, amount, currency, title, created_at, payer_id
 `
 
 type UpdateTransactionParams struct {
-	Amount   sql.NullString
+	Amount   pgtype.Numeric
 	Currency NullCurrency
-	Title    sql.NullString
+	Title    pgtype.Text
 	ID       int64
 	PayerID  int64
 }
 
 func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error) {
-	row := q.db.QueryRowContext(ctx, updateTransaction,
+	row := q.db.QueryRow(ctx, updateTransaction,
 		arg.Amount,
 		arg.Currency,
 		arg.Title,

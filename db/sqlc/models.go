@@ -7,7 +7,8 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Currency string
@@ -55,7 +56,7 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 type DebtDebtor struct {
 	TransactionID int64
 	DebtorID      int64
-	Amount        string
+	Amount        pgtype.Numeric
 	Currency      Currency
 }
 
@@ -63,16 +64,16 @@ type Payment struct {
 	ID            int64
 	TransactionID int64
 	DebtorID      int64
-	Amount        string
-	CreatedAt     time.Time
+	Amount        pgtype.Numeric
+	CreatedAt     pgtype.Timestamp
 }
 
 type Transaction struct {
 	ID        int64
-	Amount    string
+	Amount    pgtype.Numeric
 	Currency  Currency
 	Title     string
-	CreatedAt time.Time
+	CreatedAt pgtype.Timestamp
 	PayerID   int64
 }
 

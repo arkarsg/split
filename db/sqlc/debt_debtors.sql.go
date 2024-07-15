@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createDebtDebtors = `-- name: CreateDebtDebtors :one
@@ -28,12 +29,12 @@ RETURNING transaction_id, debtor_id, amount, currency
 type CreateDebtDebtorsParams struct {
 	TransactionID int64
 	DebtorID      int64
-	Amount        string
+	Amount        pgtype.Numeric
 	Currency      Currency
 }
 
 func (q *Queries) CreateDebtDebtors(ctx context.Context, arg CreateDebtDebtorsParams) (DebtDebtor, error) {
-	row := q.db.QueryRowContext(ctx, createDebtDebtors,
+	row := q.db.QueryRow(ctx, createDebtDebtors,
 		arg.TransactionID,
 		arg.DebtorID,
 		arg.Amount,
@@ -60,7 +61,7 @@ type DeleteDebtDebtorParams struct {
 }
 
 func (q *Queries) DeleteDebtDebtor(ctx context.Context, arg DeleteDebtDebtorParams) error {
-	_, err := q.db.ExecContext(ctx, deleteDebtDebtor, arg.TransactionID, arg.DebtorID)
+	_, err := q.db.Exec(ctx, deleteDebtDebtor, arg.TransactionID, arg.DebtorID)
 	return err
 }
 
@@ -75,7 +76,7 @@ type GetDebtDebtorsByTransactionAndDebtorParams struct {
 }
 
 func (q *Queries) GetDebtDebtorsByTransactionAndDebtor(ctx context.Context, arg GetDebtDebtorsByTransactionAndDebtorParams) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByTransactionAndDebtor, arg.TransactionID, arg.DebtorID)
+	rows, err := q.db.Query(ctx, getDebtDebtorsByTransactionAndDebtor, arg.TransactionID, arg.DebtorID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +93,6 @@ func (q *Queries) GetDebtDebtorsByTransactionAndDebtor(ctx context.Context, arg 
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -108,7 +106,7 @@ WHERE transaction_id = $1
 `
 
 func (q *Queries) GetDebtDebtorsByTransactionId(ctx context.Context, transactionID int64) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByTransactionId, transactionID)
+	rows, err := q.db.Query(ctx, getDebtDebtorsByTransactionId, transactionID)
 	if err != nil {
 		return nil, err
 	}
@@ -125,9 +123,6 @@ func (q *Queries) GetDebtDebtorsByTransactionId(ctx context.Context, transaction
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -141,7 +136,7 @@ WHERE debtor_id = $1
 `
 
 func (q *Queries) GetDebtsOfDebtorId(ctx context.Context, debtorID int64) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtsOfDebtorId, debtorID)
+	rows, err := q.db.Query(ctx, getDebtsOfDebtorId, debtorID)
 	if err != nil {
 		return nil, err
 	}
@@ -158,9 +153,6 @@ func (q *Queries) GetDebtsOfDebtorId(ctx context.Context, debtorID int64) ([]Deb
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -177,14 +169,14 @@ RETURNING transaction_id, debtor_id, amount, currency
 `
 
 type UpdateDebtDebtorParams struct {
-	Amount        sql.NullString
+	Amount        pgtype.Numeric
 	Currency      NullCurrency
 	TransactionId int64
 	DebtorId      int64
 }
 
 func (q *Queries) UpdateDebtDebtor(ctx context.Context, arg UpdateDebtDebtorParams) (DebtDebtor, error) {
-	row := q.db.QueryRowContext(ctx, updateDebtDebtor,
+	row := q.db.QueryRow(ctx, updateDebtDebtor,
 		arg.Amount,
 		arg.Currency,
 		arg.TransactionId,
