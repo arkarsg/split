@@ -39,6 +39,9 @@ func stringToMoney(money string) (MoneyAmount, error) {
 func (m *MoneyAmount) MoneyToString() string {
 	dollars := strconv.Itoa(int(m.Dollars))
 	cents := strconv.Itoa(int(m.Cents))
+	if m.Cents < 10 {
+		cents = "0" + cents
+	}
 	return dollars + "." + cents
 }
 

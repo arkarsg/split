@@ -33,7 +33,7 @@ func TestMoneyToStringLeadingZeroes(t *testing.T) {
 	}
 
 	moneyString := money.MoneyToString()
-	assert.Equal(t, "100.0", moneyString)
+	assert.Equal(t, "100.00", moneyString)
 }
 
 func TestMoneyToString(t *testing.T) {
