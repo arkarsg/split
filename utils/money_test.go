@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestStringToMoney(t *testing.T) {
@@ -13,8 +12,7 @@ func TestStringToMoney(t *testing.T) {
 		Dollars: 150,
 		Cents:   50,
 	}
-	moneyAmount, err := StringToMoney(testString)
-	require.NoError(t, err)
+	moneyAmount := StringToMoney(testString)
 	assert.Equal(t, expectedMoneyAmount, moneyAmount)
 }
 
@@ -24,8 +22,7 @@ func TestStringToMoneyWithPaddedZeroes(t *testing.T) {
 		Dollars: 55,
 		Cents:   000,
 	}
-	moneyAmount, err := StringToMoney(testString)
-	require.NoError(t, err)
+	moneyAmount := StringToMoney(testString)
 	assert.Equal(t, expectedMoneyAmount, moneyAmount)
 }
 

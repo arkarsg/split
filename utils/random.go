@@ -42,7 +42,13 @@ func RandomEmail() string {
 }
 
 func RandomAmount() string {
-	n := RandomInt(10, 100)
+	n := RandomInt(100, 1000)
+	amt := strconv.Itoa(int(n))
+	return amt + ".00"
+}
+
+func RandomSmallAmount() string {
+	n := RandomInt(1, 10)
 	amt := strconv.Itoa(int(n))
 	return amt + ".00"
 }

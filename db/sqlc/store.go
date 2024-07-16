@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	u "github.com/arkarsg/splitapp/utils"
 )
 
 type Store struct {
@@ -45,16 +47,18 @@ type SettleDebtPaymentTxParams struct {
 }
 
 type SettleDebtPaymentsTxResult struct {
-	debt          Debt
-	debtorPayment Payment
+	Debt          Debt
+	DebtorPayment Payment
 }
 
+// SettleDebtPaymentsTx creates a payment of SettleDebtPaymentTxParams.Amount,
+// and increments Debt.SettledAmount by SettleDebtPaymentTxParams.Amount
 func (s *Store) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaymentTxParams) (SettleDebtPaymentsTxResult, error) {
 	var result SettleDebtPaymentsTxResult
 	var err error
 
 	err = s.execTx(ctx, func(q *Queries) error {
-		result.debtorPayment, err = q.CreatePayment(ctx, CreatePaymentParams{
+		result.DebtorPayment, err = q.CreatePayment(ctx, CreatePaymentParams{
 			DebtID:   args.DebtId,
 			DebtorID: args.DebtorId,
 			Amount:   args.Amount,
@@ -64,6 +68,24 @@ func (s *Store) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPayment
 		if err != nil {
 			return err
 		}
+
+		originalDebt, err := q.GetDebtById(ctx, args.DebtId)
+
+		if err != nil {
+			return err
+		}
+		originalAmount := u.StringToMoney(originalDebt.SettledAmount)
+		settledAmount := u.StringToMoney(args.Amount)
+		newAmount := u.AddMoney(originalAmount, settledAmount)
+
+		result.Debt, err = q.UpdateDebt(ctx, UpdateDebtParams{
+			ID:               originalDebt.ID,
+			NewSettledAmount: newAmount.MoneyToString(),
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
-	return result, nil
+	return result, err
 }

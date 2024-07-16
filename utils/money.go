@@ -12,7 +12,11 @@ type MoneyAmount struct {
 	Cents   uint64
 }
 
-func StringToMoney(money string) (MoneyAmount, error) {
+func StringToMoney(money string) MoneyAmount {
+	return Must(stringToMoney(money))
+}
+
+func stringToMoney(money string) (MoneyAmount, error) {
 	dollarsAndCents := strings.Split(money, ".")
 	if len(dollarsAndCents) > 2 {
 		return MoneyAmount{}, errors.New("There are more than 2 elements to dollars and cents")
