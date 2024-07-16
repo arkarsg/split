@@ -76,7 +76,7 @@ func (s *Store) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPayment
 		}
 		originalAmount := u.StringToMoney(originalDebt.SettledAmount)
 		settledAmount := u.StringToMoney(args.Amount)
-		newAmount := u.AddMoney(originalAmount, settledAmount)
+		newAmount := u.AddMoney(*originalAmount, *settledAmount)
 
 		result.Debt, err = q.UpdateDebt(ctx, UpdateDebtParams{
 			ID:               originalDebt.ID,

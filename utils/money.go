@@ -17,9 +17,9 @@ func ZeroMoneyAmount() (zero MoneyAmount) {
 	return
 }
 
-func StringToMoney(money string) MoneyAmount {
+func StringToMoney(money string) *MoneyAmount {
 	amount := Must(stringToDecimal(money))
-	return MoneyAmount{
+	return &MoneyAmount{
 		Amount: amount,
 	}
 }
@@ -31,6 +31,10 @@ func stringToDecimal(money string) (decimal.Decimal, error) {
 
 func (m *MoneyAmount) MoneyToString() string {
 	return m.Amount.StringFixed(8)
+}
+
+func (m *MoneyAmount) Equal(other MoneyAmount) bool {
+	return m.Amount.Equal(other.Amount)
 }
 
 func AddMoney(m1 MoneyAmount, m2 MoneyAmount) MoneyAmount {

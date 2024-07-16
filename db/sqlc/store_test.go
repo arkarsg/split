@@ -58,20 +58,19 @@ func TestSettleDebtPaymentsTx(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(
 			t,
-			u.StringToMoney(amount).Amount.Equal(u.StringToMoney(actualPayment.Amount).Amount),
+			u.StringToMoney(amount).Equal(*u.StringToMoney(actualPayment.Amount)),
 		)
 
 		totalSettledAmount = u.AddMoney(
 			totalSettledAmount,
-			u.StringToMoney(createdPayment.Amount),
+			*u.StringToMoney(createdPayment.Amount),
 		)
 	}
 
 	updatedDebt, err := store.GetDebtById(context.Background(), debt1.ID)
 	require.NoError(t, err)
-	assert.Equal(
+	assert.True(
 		t,
-		totalSettledAmount,
-		u.StringToMoney(updatedDebt.SettledAmount),
+		totalSettledAmount.Equal(*u.StringToMoney(updatedDebt.SettledAmount)),
 	)
 }
