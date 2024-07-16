@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -79,4 +80,15 @@ func SubtractMoney(m1 MoneyAmount, m2 MoneyAmount) (MoneyAmount, error) {
 		Dollars: remainingCents / 100,
 		Cents:   uint64(remainingCents % 100),
 	}, nil
+}
+
+func MultiplyMoney(m1 MoneyAmount, multiplier float64) MoneyAmount {
+	totalCents := float64(m1.Dollars*100+uint64(m1.Cents)) * multiplier
+	dollars := uint64(totalCents) / 100
+	cents := uint64(math.Round(totalCents)) % 100
+
+	return MoneyAmount{
+		Dollars: dollars,
+		Cents:   cents,
+	}
 }

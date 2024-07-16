@@ -102,3 +102,33 @@ func TestSubtractMoney(t *testing.T) {
 	actualMoney, _ := SubtractMoney(money1, money2)
 	assert.Equal(t, expectedMoney, actualMoney)
 }
+
+func TestMultiplyMoney(t *testing.T) {
+	money1 := MoneyAmount{
+		Dollars: 10,
+		Cents:   10,
+	}
+
+	expectedMoney := MoneyAmount{
+		Dollars: 1,
+		Cents:   1,
+	}
+
+	actualMoney := MultiplyMoney(money1, 0.1)
+	assert.Equal(t, expectedMoney, actualMoney)
+}
+
+func TestMultiplyMoneyHandlesExchangeRate(t *testing.T) {
+	money1 := MoneyAmount{
+		Dollars: 1,
+		Cents:   0,
+	}
+
+	expectedMoney := MoneyAmount{
+		Dollars: 1,
+		Cents:   25,
+	}
+
+	actualMoney := MultiplyMoney(money1, 1.25)
+	assert.Equal(t, expectedMoney, actualMoney)
+}
