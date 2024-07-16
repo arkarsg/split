@@ -40,10 +40,7 @@ func TestSettleDebtPaymentsTx(t *testing.T) {
 		}()
 	}
 
-	totalSettledAmount := u.MoneyAmount{
-		Dollars: 0,
-		Cents:   0,
-	}
+	totalSettledAmount := u.ZeroMoneyAmount()
 
 	for i := 0; i < n; i++ {
 		err := <-errs
@@ -59,10 +56,9 @@ func TestSettleDebtPaymentsTx(t *testing.T) {
 			createdPayment.ID,
 		)
 		require.NoError(t, err)
-		assert.Equal(
+		assert.True(
 			t,
-			u.StringToMoney(amount),
-			u.StringToMoney(actualPayment.Amount),
+			u.StringToMoney(amount).Amount.Equal(u.StringToMoney(actualPayment.Amount).Amount),
 		)
 
 		totalSettledAmount = u.AddMoney(

@@ -75,7 +75,7 @@ func TestAccumulateMonies(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := AccumulateMonies(tt.monies)
-			assert.Equal(t, tt.expect.Amount, result.Amount)
+			assert.True(t, tt.expect.Amount.Equal(result.Amount))
 		})
 	}
 }
@@ -111,7 +111,7 @@ func TestSubtractMoney(t *testing.T) {
 				assert.EqualError(t, err, tt.errMsg)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.expected.Amount, result.Amount)
+				assert.True(t, tt.expected.Amount.Equal(result.Amount))
 			}
 		})
 	}
@@ -147,7 +147,7 @@ func TestMultiplyMoney(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := MultiplyMoney(tt.m1, tt.multiplier)
-			assert.Equal(t, tt.expected.Amount, result.Amount)
+			assert.True(t, tt.expected.Amount.Equal(result.Amount))
 		})
 	}
 }

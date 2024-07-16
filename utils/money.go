@@ -10,6 +10,13 @@ type MoneyAmount struct {
 	Amount decimal.Decimal
 }
 
+func ZeroMoneyAmount() (zero MoneyAmount) {
+	zero = MoneyAmount{
+		Amount: decimal.Zero,
+	}
+	return
+}
+
 func StringToMoney(money string) MoneyAmount {
 	amount := Must(stringToDecimal(money))
 	return MoneyAmount{
@@ -34,9 +41,7 @@ func AddMoney(m1 MoneyAmount, m2 MoneyAmount) MoneyAmount {
 }
 
 func AccumulateMonies(monies []MoneyAmount) MoneyAmount {
-	total := MoneyAmount{
-		Amount: decimal.Zero,
-	}
+	total := ZeroMoneyAmount()
 
 	for _, money := range monies {
 		total = AddMoney(money, total)
