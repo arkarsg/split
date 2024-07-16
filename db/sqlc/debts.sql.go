@@ -47,6 +47,19 @@ func (q *Queries) GetDebtById(ctx context.Context, id int64) (Debt, error) {
 	return i, err
 }
 
+const getDebtByIdForUpdate = `-- name: GetDebtByIdForUpdate :one
+SELECT id, transaction_id, settled_amount FROM debts
+WHERE id = $1 LIMIT 1
+FOR NO KEY UPDATE
+`
+
+func (q *Queries) GetDebtByIdForUpdate(ctx context.Context, id int64) (Debt, error) {
+	row := q.db.QueryRowContext(ctx, getDebtByIdForUpdate, id)
+	var i Debt
+	err := row.Scan(&i.ID, &i.TransactionID, &i.SettledAmount)
+	return i, err
+}
+
 const getDebtByTransactionId = `-- name: GetDebtByTransactionId :one
 SELECT id, transaction_id, settled_amount FROM debts
 WHERE transaction_id = $1 LIMIT 1

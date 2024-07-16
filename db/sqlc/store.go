@@ -69,7 +69,7 @@ func (s *Store) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPayment
 			return err
 		}
 
-		originalDebt, err := q.GetDebtById(ctx, args.DebtId)
+		originalDebt, err := q.GetDebtByIdForUpdate(ctx, args.DebtId)
 
 		if err != nil {
 			return err

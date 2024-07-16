@@ -10,6 +10,11 @@ RETURNING *;
 SELECT * FROM debts
 WHERE id = $1 LIMIT 1;
 
+-- name: GetDebtByIdForUpdate :one
+SELECT * FROM debts
+WHERE id = $1 LIMIT 1
+FOR NO KEY UPDATE;
+
 -- name: GetDebtByTransactionId :one
 SELECT * FROM debts
 WHERE transaction_id = $1 LIMIT 1;
