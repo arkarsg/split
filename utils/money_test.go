@@ -3,129 +3,151 @@ package utils
 import (
 	"testing"
 
+	"github.com/greatcloak/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestStringToMoney(t *testing.T) {
-	testString := "150.50"
-	expectedMoneyAmount := MoneyAmount{
-		Dollars: 150,
-		Cents:   50,
-	}
+	testString := "150.50000000"
 	moneyAmount := StringToMoney(testString)
-	assert.Equal(t, expectedMoneyAmount, moneyAmount)
+	assert.Equal(t, testString, moneyAmount.MoneyToString())
 }
 
 func TestStringToMoneyWithPaddedZeroes(t *testing.T) {
-	testString := "55.00000000"
-	expectedMoneyAmount := MoneyAmount{
-		Dollars: 55,
-		Cents:   000,
-	}
+	testString := "55.00000001"
 	moneyAmount := StringToMoney(testString)
-	assert.Equal(t, expectedMoneyAmount, moneyAmount)
-}
-
-func TestMoneyToStringLeadingZeroes(t *testing.T) {
-	money := MoneyAmount{
-		Dollars: 100,
-		Cents:   0,
-	}
-
-	moneyString := money.MoneyToString()
-	assert.Equal(t, "100.00", moneyString)
+	assert.Equal(t, testString, moneyAmount.MoneyToString())
 }
 
 func TestMoneyToString(t *testing.T) {
 	money := MoneyAmount{
-		Dollars: 100,
-		Cents:   5,
+		Amount: decimal.NewFromFloat(10.05),
 	}
 
 	moneyString := money.MoneyToString()
-	assert.Equal(t, "100.05", moneyString)
+	assert.Equal(t, "10.05000000", moneyString)
 }
 
 func TestAddMoney(t *testing.T) {
 	money1 := MoneyAmount{
-		Dollars: 0,
-		Cents:   99,
-	}
-	money2 := MoneyAmount{
-		Dollars: 0,
-		Cents:   1,
+		Amount: decimal.NewFromFloat(0.99),
 	}
 
-	expectedMoney := MoneyAmount{
-		Dollars: 1,
-		Cents:   0,
+	money2 := MoneyAmount{
+		Amount: decimal.NewFromFloat(0.01),
 	}
+
+	expectedMoneyString := "1.00000000"
 
 	actualMoney := AddMoney(money1, money2)
-	assert.Equal(t, expectedMoney, actualMoney)
+	assert.Equal(t, expectedMoneyString, actualMoney.MoneyToString())
 }
 
 func TestAccumulateMonies(t *testing.T) {
 	tests := []struct {
-		monies   []MoneyAmount
-		expected MoneyAmount
+		name   string
+		monies []MoneyAmount
+		expect MoneyAmount
 	}{
-		{[]MoneyAmount{{123, 45}, {10, 55}}, MoneyAmount{134, 0}},
-		{[]MoneyAmount{{0, 99}, {0, 2}}, MoneyAmount{1, 1}},
-		{[]MoneyAmount{{100, 0}, {0, 100}}, MoneyAmount{101, 0}},
+		{
+			name:   "Empty list",
+			monies: []MoneyAmount{},
+			expect: MoneyAmount{Amount: decimal.Zero},
+		},
+		{
+			name: "Single money",
+			monies: []MoneyAmount{
+				{Amount: decimal.NewFromFloat(10.50)},
+			},
+			expect: MoneyAmount{Amount: decimal.NewFromFloat(10.50)},
+		},
+		{
+			name: "Multiple monies",
+			monies: []MoneyAmount{
+				{Amount: decimal.NewFromFloat(5.25)},
+				{Amount: decimal.NewFromFloat(3.75)},
+				{Amount: decimal.NewFromFloat(1.50)},
+			},
+			expect: MoneyAmount{Amount: decimal.NewFromFloat(10.50)},
+		},
 	}
 
-	for _, test := range tests {
-		result := AccumulateMonies(test.monies)
-		if result != test.expected {
-			t.Errorf("AccumulateMonies(%v) = %v, expected %v", test.monies, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := AccumulateMonies(tt.monies)
+			assert.Equal(t, tt.expect.Amount, result.Amount)
+		})
 	}
 }
 
 func TestSubtractMoney(t *testing.T) {
-	money1 := MoneyAmount{
-		Dollars: 10,
-		Cents:   1,
+	tests := []struct {
+		name     string
+		m1       MoneyAmount
+		m2       MoneyAmount
+		expected MoneyAmount
+		errMsg   string
+	}{
+		{
+			name:     "Valid subtraction",
+			m1:       MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+			m2:       MoneyAmount{Amount: decimal.NewFromFloat(3.50)},
+			expected: MoneyAmount{Amount: decimal.NewFromFloat(6.50)},
+			errMsg:   "",
+		},
+		{
+			name:     "Subtraction resulting in negative",
+			m1:       MoneyAmount{Amount: decimal.NewFromFloat(3.00)},
+			m2:       MoneyAmount{Amount: decimal.NewFromFloat(5.00)},
+			expected: MoneyAmount{},
+			errMsg:   "Subtraction will cause negative value",
+		},
 	}
-	money2 := MoneyAmount{
-		Dollars: 1,
-		Cents:   99,
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := SubtractMoney(tt.m1, tt.m2)
+			if tt.errMsg != "" {
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expected.Amount, result.Amount)
+			}
+		})
 	}
-	expectedMoney := MoneyAmount{
-		Dollars: 8,
-		Cents:   2,
-	}
-	actualMoney, _ := SubtractMoney(money1, money2)
-	assert.Equal(t, expectedMoney, actualMoney)
 }
 
 func TestMultiplyMoney(t *testing.T) {
-	money1 := MoneyAmount{
-		Dollars: 10,
-		Cents:   10,
+	tests := []struct {
+		name       string
+		m1         MoneyAmount
+		multiplier float64
+		expected   MoneyAmount
+	}{
+		{
+			name:       "Multiply by 2",
+			m1:         MoneyAmount{Amount: decimal.NewFromFloat(5.00)},
+			multiplier: 2,
+			expected:   MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+		},
+		{
+			name:       "Multiply by 0.5",
+			m1:         MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+			multiplier: 0.5,
+			expected:   MoneyAmount{Amount: decimal.NewFromFloat(5.00)},
+		},
+		{
+			name:       "Multiply by 1.5",
+			m1:         MoneyAmount{Amount: decimal.NewFromFloat(7.50)},
+			multiplier: 1.5,
+			expected:   MoneyAmount{Amount: decimal.NewFromFloat(11.25)},
+		},
 	}
 
-	expectedMoney := MoneyAmount{
-		Dollars: 1,
-		Cents:   1,
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := MultiplyMoney(tt.m1, tt.multiplier)
+			assert.Equal(t, tt.expected.Amount, result.Amount)
+		})
 	}
-
-	actualMoney := MultiplyMoney(money1, 0.1)
-	assert.Equal(t, expectedMoney, actualMoney)
-}
-
-func TestMultiplyMoneyHandlesExchangeRate(t *testing.T) {
-	money1 := MoneyAmount{
-		Dollars: 1,
-		Cents:   0,
-	}
-
-	expectedMoney := MoneyAmount{
-		Dollars: 1,
-		Cents:   25,
-	}
-
-	actualMoney := MultiplyMoney(money1, 1.25)
-	assert.Equal(t, expectedMoney, actualMoney)
 }

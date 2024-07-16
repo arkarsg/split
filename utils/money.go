@@ -2,65 +2,40 @@ package utils
 
 import (
 	"errors"
-	"math"
-	"strconv"
-	"strings"
+
+	decimal "github.com/greatcloak/decimal"
 )
 
 type MoneyAmount struct {
-	Dollars uint64
-	Cents   uint64
+	Amount decimal.Decimal
 }
 
 func StringToMoney(money string) MoneyAmount {
-	return Must(stringToMoney(money))
+	amount := Must(stringToDecimal(money))
+	return MoneyAmount{
+		Amount: amount,
+	}
 }
 
-func stringToMoney(money string) (MoneyAmount, error) {
-	dollarsAndCents := strings.Split(money, ".")
-	if len(dollarsAndCents) > 2 {
-		return MoneyAmount{}, errors.New("There are more than 2 elements to dollars and cents")
-	}
-
-	dollars, err := strconv.Atoi(dollarsAndCents[0])
-	if err != nil {
-		return MoneyAmount{}, errors.New("Error converting dollar to int")
-	}
-	cents, err := strconv.Atoi(dollarsAndCents[1])
-	if err != nil || cents > 99 {
-		return MoneyAmount{}, errors.New("Error converting cents to int")
-	}
-	return MoneyAmount{
-		Dollars: uint64(dollars),
-		Cents:   uint64(cents),
-	}, nil
+func stringToDecimal(money string) (decimal.Decimal, error) {
+	price, err := decimal.NewFromString(money)
+	return price, err
 }
 
 func (m *MoneyAmount) MoneyToString() string {
-	dollars := strconv.Itoa(int(m.Dollars))
-	cents := strconv.Itoa(int(m.Cents))
-	if m.Cents < 10 {
-		cents = "0" + cents
-	}
-	return dollars + "." + cents
+	return m.Amount.StringFixed(8)
 }
 
 func AddMoney(m1 MoneyAmount, m2 MoneyAmount) MoneyAmount {
-	totalCents := m1.Cents + m2.Cents
-	extraDollars := totalCents / 100
-	totalDollars := m1.Dollars + m2.Dollars + uint64(extraDollars)
-	remainingCents := totalCents % 100
-
+	newAmount := m1.Amount.Add(m2.Amount)
 	return MoneyAmount{
-		Dollars: totalDollars,
-		Cents:   remainingCents,
+		Amount: newAmount,
 	}
 }
 
 func AccumulateMonies(monies []MoneyAmount) MoneyAmount {
 	total := MoneyAmount{
-		Dollars: 0,
-		Cents:   0,
+		Amount: decimal.Zero,
 	}
 
 	for _, money := range monies {
@@ -69,33 +44,19 @@ func AccumulateMonies(monies []MoneyAmount) MoneyAmount {
 	return total
 }
 
+// m1 - m2
 func SubtractMoney(m1 MoneyAmount, m2 MoneyAmount) (MoneyAmount, error) {
-	if m1.Dollars < m2.Dollars || (m1.Dollars == m2.Dollars && m1.Cents < m2.Cents) {
-		return MoneyAmount{}, errors.New("Subtraction result would be negative")
+	newAmount := m1.Amount.Sub(m2.Amount)
+	if newAmount.IsNegative() {
+		return MoneyAmount{}, errors.New("Subtraction will cause negative value")
 	}
-
-	totalCents1 := m1.Dollars*100 + uint64(m1.Cents)
-	totalCents2 := m2.Dollars*100 + uint64(m2.Cents)
-
-	if totalCents1 < totalCents2 {
-		return MoneyAmount{}, errors.New("Subtraction result would be negative")
-	}
-
-	remainingCents := totalCents1 - totalCents2
-
-	return MoneyAmount{
-		Dollars: remainingCents / 100,
-		Cents:   uint64(remainingCents % 100),
-	}, nil
+	return MoneyAmount{Amount: newAmount}, nil
 }
 
 func MultiplyMoney(m1 MoneyAmount, multiplier float64) MoneyAmount {
-	totalCents := float64(m1.Dollars*100+uint64(m1.Cents)) * multiplier
-	dollars := uint64(totalCents) / 100
-	cents := uint64(math.Round(totalCents)) % 100
-
+	mulFactor := decimal.NewFromFloat(multiplier)
+	newAmount := m1.Amount.Mul(mulFactor)
 	return MoneyAmount{
-		Dollars: dollars,
-		Cents:   cents,
+		Amount: newAmount,
 	}
 }
