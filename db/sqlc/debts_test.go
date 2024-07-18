@@ -10,7 +10,7 @@ import (
 )
 
 func TestCreateDebt(t *testing.T) {
-	txn := CreateRandomTransaction()
+	txn := createRandomTransaction()
 	debt, err := testQueries.CreateDebt(
 		context.Background(),
 		txn.ID,
@@ -20,7 +20,7 @@ func TestCreateDebt(t *testing.T) {
 }
 
 func TestGetDebtById(t *testing.T) {
-	expectedDebt := CreateRandomDebt()
+	expectedDebt := createRandomDebt()
 	actualDebt, err := testQueries.GetDebtById(
 		context.Background(),
 		expectedDebt.ID,
@@ -30,7 +30,7 @@ func TestGetDebtById(t *testing.T) {
 }
 
 func TestUpdateDebt(t *testing.T) {
-	debtToTest := CreateRandomDebt()
+	debtToTest := createRandomDebt()
 	newAmount := u.RandomAmount()
 	updateDebtParams := UpdateDebtParams{
 		ID:               debtToTest.ID,

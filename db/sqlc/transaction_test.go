@@ -44,7 +44,7 @@ func TestCreateTransaction(t *testing.T) {
 }
 
 func TestGetTransactionById(t *testing.T) {
-	expectedTxn := CreateRandomTransaction()
+	expectedTxn := createRandomTransaction()
 	actualTxn, err := testQueries.GetTransactionById(
 		context.Background(),
 		expectedTxn.ID,
@@ -54,7 +54,7 @@ func TestGetTransactionById(t *testing.T) {
 }
 
 func TestGetTransactionByPayer(t *testing.T) {
-	txn := CreateRandomTransaction()
+	txn := createRandomTransaction()
 	getQueryParams := GetTransactionsByPayerParams{
 		PayerID: txn.PayerID,
 		Limit:   1,
@@ -77,7 +77,7 @@ func TestGetTransactionByPayer(t *testing.T) {
 }
 
 func TestUpdateTransaction(t *testing.T) {
-	txn := CreateRandomTransaction()
+	txn := createRandomTransaction()
 	updateTxnParmas := UpdateTransactionParams{
 		Title: sql.NullString{
 			String: u.RandomString(10),
@@ -95,7 +95,7 @@ func TestUpdateTransaction(t *testing.T) {
 }
 
 func TestDeleteTransaction(t *testing.T) {
-	txn := CreateRandomTransaction()
+	txn := createRandomTransaction()
 	var err error
 	err = testQueries.DeleteTransaction(
 		context.Background(),

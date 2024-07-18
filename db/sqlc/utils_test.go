@@ -6,12 +6,12 @@ import (
 	u "github.com/arkarsg/splitapp/utils"
 )
 
-func CreateRandomUser(test_input CreateUserParams) (User, error) {
+func createRandomUser(test_input CreateUserParams) (User, error) {
 	user, err := testQueries.CreateUser(context.Background(), test_input)
 	return user, err
 }
 
-func CreateRandomTransaction() Transaction {
+func createRandomTransaction() Transaction {
 	var user User
 	var err error
 	user, err = testQueries.GetUserById(
@@ -41,8 +41,8 @@ func CreateRandomTransaction() Transaction {
 	return txn
 }
 
-func CreateRandomDebt() Debt {
-	txn := CreateRandomTransaction()
+func createRandomDebt() Debt {
+	txn := createRandomTransaction()
 	debt, _ := testQueries.CreateDebt(
 		context.Background(),
 		txn.ID,
@@ -50,12 +50,12 @@ func CreateRandomDebt() Debt {
 	return debt
 }
 
-func CreateRandomDebtDebtor() DebtDebtor {
-	debtor, _ := CreateRandomUser(CreateUserParams{
+func createRandomDebtDebtor() DebtDebtor {
+	debtor, _ := createRandomUser(CreateUserParams{
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	})
-	debt := CreateRandomDebt()
+	debt := createRandomDebt()
 
 	createDebtDebtorsParams := CreateDebtDebtorsParams{
 		DebtID:   debt.ID,

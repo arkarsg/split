@@ -12,8 +12,8 @@ import (
 func TestSettleDebtPaymentsTx(t *testing.T) {
 	store := NewStore(testDb)
 
-	debt1 := CreateRandomDebt()
-	debtor1, _ := CreateRandomUser(CreateUserParams{
+	debt1 := createRandomDebt()
+	debtor1, _ := createRandomUser(CreateUserParams{
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	})

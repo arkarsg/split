@@ -11,11 +11,11 @@ import (
 )
 
 func TestCreateDebtDebtors(t *testing.T) {
-	debtor, _ := CreateRandomUser(CreateUserParams{
+	debtor, _ := createRandomUser(CreateUserParams{
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	})
-	debt := CreateRandomDebt()
+	debt := createRandomDebt()
 
 	createDebtDebtorsParams := CreateDebtDebtorsParams{
 		DebtID:   debt.ID,
@@ -33,7 +33,7 @@ func TestCreateDebtDebtors(t *testing.T) {
 }
 
 func TestGetDebtDebtorsByDebtAndDebtor(t *testing.T) {
-	dd := CreateRandomDebtDebtor()
+	dd := createRandomDebtDebtor()
 	dd_actual, err := testQueries.GetDebtDebtorsByDebtAndDebtor(
 		context.Background(),
 		GetDebtDebtorsByDebtAndDebtorParams{
@@ -47,7 +47,7 @@ func TestGetDebtDebtorsByDebtAndDebtor(t *testing.T) {
 }
 
 func TestDeleteDebtDebtor(t *testing.T) {
-	dd := CreateRandomDebtDebtor()
+	dd := createRandomDebtDebtor()
 	err := testQueries.DeleteDebtDebtor(
 		context.Background(),
 		DeleteDebtDebtorParams{
@@ -70,7 +70,7 @@ func TestDeleteDebtDebtor(t *testing.T) {
 }
 
 func TestGetDebtsOfDebtorId(t *testing.T) {
-	debtor, err := CreateRandomUser(CreateUserParams{
+	debtor, err := createRandomUser(CreateUserParams{
 		Username: u.RandomUser(),
 		Email:    u.RandomEmail(),
 	})
@@ -78,7 +78,7 @@ func TestGetDebtsOfDebtorId(t *testing.T) {
 	// associate 10 debts with debtor
 	n := 10
 	for i := 0; i < n; i++ {
-		debt := CreateRandomDebt()
+		debt := createRandomDebt()
 		_, err = testQueries.CreateDebtDebtors(
 			context.Background(),
 			CreateDebtDebtorsParams{
@@ -100,7 +100,7 @@ func TestGetDebtsOfDebtorId(t *testing.T) {
 }
 
 func TestUpdateAllFieldsDebtDebtor(t *testing.T) {
-	dd := CreateRandomDebtDebtor()
+	dd := createRandomDebtDebtor()
 	newAmount := u.RandomAmount()
 	updateDebtDebtorParams := UpdateDebtDebtorParams{
 		Amount: sql.NullString{
