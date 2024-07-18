@@ -44,11 +44,11 @@ func RandomEmail() string {
 func RandomAmount() string {
 	n := RandomInt(100, 1000)
 	amt := strconv.Itoa(int(n))
-	return amt + ".00"
+	return amt + ".00000000"
 }
 
 func RandomSmallAmount() string {
 	n := RandomInt(1, 10)
 	amt := strconv.Itoa(int(n))
-	return amt + ".00"
+	return amt + ".00000000"
 }

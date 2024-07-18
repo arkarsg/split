@@ -52,14 +52,13 @@ func TestRandomEmail(t *testing.T) {
 	}
 }
 
-// TestRandomAmount checks if the generated amount is within the specified range and has the correct format
 func TestRandomAmount(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		r := RandomAmount()
-		if len(r) < 5 || r[len(r)-3:] != ".00" {
-			t.Errorf("RandomAmount() = %v, want format %v", r, "amount.00")
+		if len(r) < 11 || r[len(r)-9:] != ".00000000" {
+			t.Errorf("RandomAmount() = %v, want format %v", r, "amount.00000000")
 		}
-		amt, err := strconv.ParseInt(r[:len(r)-3], 10, 64)
+		amt, err := strconv.ParseInt(r[:len(r)-9], 10, 64)
 		if err != nil {
 			t.Errorf("RandomAmount() parsing error: %v", err)
 		}
@@ -73,10 +72,10 @@ func TestRandomAmount(t *testing.T) {
 func TestRandomSmallAmount(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		r := RandomSmallAmount()
-		if len(r) < 4 || r[len(r)-3:] != ".00" {
-			t.Errorf("RandomSmallAmount() = %v, want format %v", r, "amount.00")
+		if len(r) > 11 || r[len(r)-9:] != ".00000000" {
+			t.Errorf("RandomSmallAmount() = %v, want format %v", r, "amount.00000000")
 		}
-		amt, err := strconv.ParseInt(r[:len(r)-3], 10, 64)
+		amt, err := strconv.ParseInt(r[:len(r)-9], 10, 64)
 		if err != nil {
 			t.Errorf("RandomSmallAmount() parsing error: %v", err)
 		}

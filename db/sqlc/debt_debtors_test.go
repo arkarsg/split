@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	u "github.com/arkarsg/splitapp/utils"
@@ -66,4 +67,59 @@ func TestDeleteDebtDebtor(t *testing.T) {
 	)
 	require.Error(t, err)
 	require.Empty(t, debtDebtors)
+}
+
+func TestGetDebtsOfDebtorId(t *testing.T) {
+	debtor, err := CreateRandomUser(CreateUserParams{
+		Username: u.RandomUser(),
+		Email:    u.RandomEmail(),
+	})
+
+	// associate 10 debts with debtor
+	n := 10
+	for i := 0; i < n; i++ {
+		debt := CreateRandomDebt()
+		_, err = testQueries.CreateDebtDebtors(
+			context.Background(),
+			CreateDebtDebtorsParams{
+				DebtID:   debt.ID,
+				DebtorID: debtor.ID,
+				Amount:   u.RandomAmount(),
+				Currency: CurrencySGD,
+			},
+		)
+	}
+
+	rows, err := testQueries.GetDebtsOfDebtorId(
+		context.Background(),
+		debtor.ID,
+	)
+
+	require.NoError(t, err)
+	require.Len(t, rows, n)
+}
+
+func TestUpdateAllFieldsDebtDebtor(t *testing.T) {
+	dd := CreateRandomDebtDebtor()
+	newAmount := u.RandomAmount()
+	updateDebtDebtorParams := UpdateDebtDebtorParams{
+		Amount: sql.NullString{
+			String: newAmount,
+			Valid:  true,
+		},
+		Currency: NullCurrency{
+			Currency: CurrencyUSD,
+			Valid:    true,
+		},
+		DebtId:   dd.DebtID,
+		DebtorId: dd.DebtorID,
+	}
+
+	newDebtDebtor, err := testQueries.UpdateDebtDebtor(
+		context.Background(),
+		updateDebtDebtorParams,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, newAmount, newDebtDebtor.Amount)
+	assert.Equal(t, CurrencyUSD, newDebtDebtor.Currency)
 }
