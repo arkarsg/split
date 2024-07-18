@@ -20,7 +20,7 @@ WHERE debt_id = $1;
 SELECT * FROM debt_debtors
 WHERE debtor_id = $1;
 
--- name: GetDebtDebtorsByDebtAndDebtor :many
+-- name: GetDebtDebtorsByDebtAndDebtor :one
 SELECT * FROM debt_debtors
 WHERE debt_id = $1 AND debtor_id = $2;
 

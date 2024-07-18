@@ -64,7 +64,7 @@ func (q *Queries) DeleteDebtDebtor(ctx context.Context, arg DeleteDebtDebtorPara
 	return err
 }
 
-const getDebtDebtorsByDebtAndDebtor = `-- name: GetDebtDebtorsByDebtAndDebtor :many
+const getDebtDebtorsByDebtAndDebtor = `-- name: GetDebtDebtorsByDebtAndDebtor :one
 SELECT debt_id, debtor_id, amount, currency FROM debt_debtors
 WHERE debt_id = $1 AND debtor_id = $2
 `
@@ -74,32 +74,16 @@ type GetDebtDebtorsByDebtAndDebtorParams struct {
 	DebtorID int64
 }
 
-func (q *Queries) GetDebtDebtorsByDebtAndDebtor(ctx context.Context, arg GetDebtDebtorsByDebtAndDebtorParams) ([]DebtDebtor, error) {
-	rows, err := q.db.QueryContext(ctx, getDebtDebtorsByDebtAndDebtor, arg.DebtID, arg.DebtorID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []DebtDebtor
-	for rows.Next() {
-		var i DebtDebtor
-		if err := rows.Scan(
-			&i.DebtID,
-			&i.DebtorID,
-			&i.Amount,
-			&i.Currency,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetDebtDebtorsByDebtAndDebtor(ctx context.Context, arg GetDebtDebtorsByDebtAndDebtorParams) (DebtDebtor, error) {
+	row := q.db.QueryRowContext(ctx, getDebtDebtorsByDebtAndDebtor, arg.DebtID, arg.DebtorID)
+	var i DebtDebtor
+	err := row.Scan(
+		&i.DebtID,
+		&i.DebtorID,
+		&i.Amount,
+		&i.Currency,
+	)
+	return i, err
 }
 
 const getDebtDebtorsByDebtId = `-- name: GetDebtDebtorsByDebtId :many
