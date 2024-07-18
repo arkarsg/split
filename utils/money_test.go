@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/greatcloak/decimal"
@@ -76,6 +77,41 @@ func TestAccumulateMonies(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := AccumulateMonies(tt.monies)
 			assert.True(t, tt.expect.Amount.Equal(result.Amount))
+		})
+	}
+}
+
+func TestEqual(t *testing.T) {
+	tests := []struct {
+		name     string
+		m1       MoneyAmount
+		m2       MoneyAmount
+		expected bool
+	}{
+		{
+			name:     "Exact Amount Equal",
+			m1:       MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+			m2:       MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+			expected: true,
+		},
+		{
+			name:     "Amount Equal",
+			m1:       MoneyAmount{Amount: decimal.NewFromBigInt(big.NewInt(10), 0)},
+			m2:       MoneyAmount{Amount: decimal.NewFromFloat(10.00)},
+			expected: true,
+		},
+		{
+			name:     "Not Equal",
+			m1:       MoneyAmount{Amount: decimal.NewFromBigInt(big.NewInt(10), 1)},
+			m2:       MoneyAmount{Amount: decimal.NewFromFloat(15.00)},
+			expected: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			res := test.m1.Equal(test.m2)
+			assert.Equal(t, test.expected, res, "%v and %v", test.m1, test.m2)
 		})
 	}
 }
