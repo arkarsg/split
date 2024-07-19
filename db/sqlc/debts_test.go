@@ -29,6 +29,16 @@ func TestGetDebtById(t *testing.T) {
 	assert.Equal(t, expectedDebt, actualDebt)
 }
 
+func TestGetDebtByTransactionID(t *testing.T) {
+	expectedDebt := createRandomDebt()
+	actualDebt, err := testQueries.GetDebtByTransactionId(
+		context.Background(),
+		expectedDebt.TransactionID,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, expectedDebt, actualDebt)
+}
+
 func TestUpdateDebt(t *testing.T) {
 	debtToTest := createRandomDebt()
 	newAmount := u.RandomAmount()
