@@ -50,7 +50,7 @@ func init() {
 
 	err = viper.UnmarshalKey("server", &serverEnvs)
 	if err != nil {
-		log.Fatal("DB Configs can't be loaded: ", err)
+		log.Fatal("Server Configs can't be loaded: ", err)
 	}
 	serverEnvs.Address = serverEnvs.Path + ":" + serverEnvs.Port
 }
