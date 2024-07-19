@@ -30,7 +30,7 @@ type CreateTransactionParams struct {
 	Amount   string   `json:"amount"`
 	Currency Currency `json:"currency"`
 	Title    string   `json:"title"`
-	PayerID  int64    `json:"payerId"`
+	PayerID  int64    `json:"payer_id"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -101,19 +101,19 @@ OFFSET $3
 `
 
 type GetTransactionsByPayerParams struct {
-	PayerID int64 `json:"payerId"`
+	PayerID int64 `json:"payer_id"`
 	Limit   int32 `json:"limit"`
 	Offset  int32 `json:"offset"`
 }
 
 type GetTransactionsByPayerRow struct {
-	TransactionID        int64     `json:"transactionId"`
-	TransactionAmount    string    `json:"transactionAmount"`
-	TransactionCurrency  Currency  `json:"transactionCurrency"`
-	TransactionTitle     string    `json:"transactionTitle"`
-	TransactionCreatedAt time.Time `json:"transactionCreatedAt"`
-	PayerID              int64     `json:"payerId"`
-	PayerUsername        string    `json:"payerUsername"`
+	TransactionID        int64     `json:"transaction_id"`
+	TransactionAmount    string    `json:"transaction_amount"`
+	TransactionCurrency  Currency  `json:"transaction_currency"`
+	TransactionTitle     string    `json:"transaction_title"`
+	TransactionCreatedAt time.Time `json:"transaction_created_at"`
+	PayerID              int64     `json:"payer_id"`
+	PayerUsername        string    `json:"payer_username"`
 }
 
 func (q *Queries) GetTransactionsByPayer(ctx context.Context, arg GetTransactionsByPayerParams) ([]GetTransactionsByPayerRow, error) {
@@ -122,7 +122,7 @@ func (q *Queries) GetTransactionsByPayer(ctx context.Context, arg GetTransaction
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetTransactionsByPayerRow
+	items := []GetTransactionsByPayerRow{}
 	for rows.Next() {
 		var i GetTransactionsByPayerRow
 		if err := rows.Scan(

@@ -54,23 +54,23 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 
 type Debt struct {
 	ID            int64  `json:"id"`
-	TransactionID int64  `json:"transactionId"`
-	SettledAmount string `json:"settledAmount"`
+	TransactionID int64  `json:"transaction_id"`
+	SettledAmount string `json:"settled_amount"`
 }
 
 type DebtDebtor struct {
-	DebtID   int64    `json:"debtId"`
-	DebtorID int64    `json:"debtorId"`
+	DebtID   int64    `json:"debt_id"`
+	DebtorID int64    `json:"debtor_id"`
 	Amount   string   `json:"amount"`
 	Currency Currency `json:"currency"`
 }
 
 type Payment struct {
 	ID        int64     `json:"id"`
-	DebtID    int64     `json:"debtId"`
-	DebtorID  int64     `json:"debtorId"`
+	DebtID    int64     `json:"debt_id"`
+	DebtorID  int64     `json:"debtor_id"`
 	Amount    string    `json:"amount"`
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"created_at"`
 	Currency  Currency  `json:"currency"`
 }
 
@@ -79,8 +79,8 @@ type Transaction struct {
 	Amount    string    `json:"amount"`
 	Currency  Currency  `json:"currency"`
 	Title     string    `json:"title"`
-	CreatedAt time.Time `json:"createdAt"`
-	PayerID   int64     `json:"payerId"`
+	CreatedAt time.Time `json:"created_at"`
+	PayerID   int64     `json:"payer_id"`
 }
 
 type User struct {

@@ -26,8 +26,8 @@ RETURNING debt_id, debtor_id, amount, currency
 `
 
 type CreateDebtDebtorsParams struct {
-	DebtID   int64    `json:"debtId"`
-	DebtorID int64    `json:"debtorId"`
+	DebtID   int64    `json:"debt_id"`
+	DebtorID int64    `json:"debtor_id"`
 	Amount   string   `json:"amount"`
 	Currency Currency `json:"currency"`
 }
@@ -55,8 +55,8 @@ WHERE debt_id = $1 AND debtor_id = $2
 `
 
 type DeleteDebtDebtorParams struct {
-	DebtID   int64 `json:"debtId"`
-	DebtorID int64 `json:"debtorId"`
+	DebtID   int64 `json:"debt_id"`
+	DebtorID int64 `json:"debtor_id"`
 }
 
 func (q *Queries) DeleteDebtDebtor(ctx context.Context, arg DeleteDebtDebtorParams) error {
@@ -70,8 +70,8 @@ WHERE debt_id = $1 AND debtor_id = $2
 `
 
 type GetDebtDebtorsByDebtAndDebtorParams struct {
-	DebtID   int64 `json:"debtId"`
-	DebtorID int64 `json:"debtorId"`
+	DebtID   int64 `json:"debt_id"`
+	DebtorID int64 `json:"debtor_id"`
 }
 
 func (q *Queries) GetDebtDebtorsByDebtAndDebtor(ctx context.Context, arg GetDebtDebtorsByDebtAndDebtorParams) (DebtDebtor, error) {
@@ -97,7 +97,7 @@ func (q *Queries) GetDebtDebtorsByDebtId(ctx context.Context, debtID int64) ([]D
 		return nil, err
 	}
 	defer rows.Close()
-	var items []DebtDebtor
+	items := []DebtDebtor{}
 	for rows.Next() {
 		var i DebtDebtor
 		if err := rows.Scan(
@@ -130,7 +130,7 @@ func (q *Queries) GetDebtsOfDebtorId(ctx context.Context, debtorID int64) ([]Deb
 		return nil, err
 	}
 	defer rows.Close()
-	var items []DebtDebtor
+	items := []DebtDebtor{}
 	for rows.Next() {
 		var i DebtDebtor
 		if err := rows.Scan(
@@ -163,8 +163,8 @@ RETURNING debt_id, debtor_id, amount, currency
 type UpdateDebtDebtorParams struct {
 	Amount   sql.NullString `json:"amount"`
 	Currency NullCurrency   `json:"currency"`
-	DebtId   int64          `json:"debtId"`
-	DebtorId int64          `json:"debtorId"`
+	DebtId   int64          `json:"debt_id"`
+	DebtorId int64          `json:"debtor_id"`
 }
 
 func (q *Queries) UpdateDebtDebtor(ctx context.Context, arg UpdateDebtDebtorParams) (DebtDebtor, error) {

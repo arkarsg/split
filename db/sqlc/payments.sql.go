@@ -26,8 +26,8 @@ RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type CreatePaymentParams struct {
-	DebtID   int64    `json:"debtId"`
-	DebtorID int64    `json:"debtorId"`
+	DebtID   int64    `json:"debt_id"`
+	DebtorID int64    `json:"debtor_id"`
 	Amount   string   `json:"amount"`
 	Currency Currency `json:"currency"`
 }
@@ -72,7 +72,7 @@ func (q *Queries) GetPaymentsByDebtId(ctx context.Context, debtID int64) ([]Paym
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Payment
+	items := []Payment{}
 	for rows.Next() {
 		var i Payment
 		if err := rows.Scan(
@@ -107,7 +107,7 @@ func (q *Queries) GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Payment
+	items := []Payment{}
 	for rows.Next() {
 		var i Payment
 		if err := rows.Scan(
@@ -161,8 +161,8 @@ RETURNING id, debt_id, debtor_id, amount, created_at, currency
 type UpdatePaymentParams struct {
 	Amount   sql.NullString `json:"amount"`
 	Currency interface{}    `json:"currency"`
-	DebtId   int64          `json:"debtId"`
-	DebtorId int64          `json:"debtorId"`
+	DebtId   int64          `json:"debt_id"`
+	DebtorId int64          `json:"debtor_id"`
 }
 
 func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error) {
