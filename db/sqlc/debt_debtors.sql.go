@@ -26,10 +26,10 @@ RETURNING debt_id, debtor_id, amount, currency
 `
 
 type CreateDebtDebtorsParams struct {
-	DebtID   int64
-	DebtorID int64
-	Amount   string
-	Currency Currency
+	DebtID   int64    `json:"debtId"`
+	DebtorID int64    `json:"debtorId"`
+	Amount   string   `json:"amount"`
+	Currency Currency `json:"currency"`
 }
 
 func (q *Queries) CreateDebtDebtors(ctx context.Context, arg CreateDebtDebtorsParams) (DebtDebtor, error) {
@@ -55,8 +55,8 @@ WHERE debt_id = $1 AND debtor_id = $2
 `
 
 type DeleteDebtDebtorParams struct {
-	DebtID   int64
-	DebtorID int64
+	DebtID   int64 `json:"debtId"`
+	DebtorID int64 `json:"debtorId"`
 }
 
 func (q *Queries) DeleteDebtDebtor(ctx context.Context, arg DeleteDebtDebtorParams) error {
@@ -70,8 +70,8 @@ WHERE debt_id = $1 AND debtor_id = $2
 `
 
 type GetDebtDebtorsByDebtAndDebtorParams struct {
-	DebtID   int64
-	DebtorID int64
+	DebtID   int64 `json:"debtId"`
+	DebtorID int64 `json:"debtorId"`
 }
 
 func (q *Queries) GetDebtDebtorsByDebtAndDebtor(ctx context.Context, arg GetDebtDebtorsByDebtAndDebtorParams) (DebtDebtor, error) {
@@ -161,10 +161,10 @@ RETURNING debt_id, debtor_id, amount, currency
 `
 
 type UpdateDebtDebtorParams struct {
-	Amount   sql.NullString
-	Currency NullCurrency
-	DebtId   int64
-	DebtorId int64
+	Amount   sql.NullString `json:"amount"`
+	Currency NullCurrency   `json:"currency"`
+	DebtId   int64          `json:"debtId"`
+	DebtorId int64          `json:"debtorId"`
 }
 
 func (q *Queries) UpdateDebtDebtor(ctx context.Context, arg UpdateDebtDebtorParams) (DebtDebtor, error) {

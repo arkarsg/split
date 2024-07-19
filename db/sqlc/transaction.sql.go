@@ -27,10 +27,10 @@ RETURNING id, amount, currency, title, created_at, payer_id
 `
 
 type CreateTransactionParams struct {
-	Amount   string
-	Currency Currency
-	Title    string
-	PayerID  int64
+	Amount   string   `json:"amount"`
+	Currency Currency `json:"currency"`
+	Title    string   `json:"title"`
+	PayerID  int64    `json:"payerId"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -101,19 +101,19 @@ OFFSET $3
 `
 
 type GetTransactionsByPayerParams struct {
-	PayerID int64
-	Limit   int32
-	Offset  int32
+	PayerID int64 `json:"payerId"`
+	Limit   int32 `json:"limit"`
+	Offset  int32 `json:"offset"`
 }
 
 type GetTransactionsByPayerRow struct {
-	TransactionID        int64
-	TransactionAmount    string
-	TransactionCurrency  Currency
-	TransactionTitle     string
-	TransactionCreatedAt time.Time
-	PayerID              int64
-	PayerUsername        string
+	TransactionID        int64     `json:"transactionId"`
+	TransactionAmount    string    `json:"transactionAmount"`
+	TransactionCurrency  Currency  `json:"transactionCurrency"`
+	TransactionTitle     string    `json:"transactionTitle"`
+	TransactionCreatedAt time.Time `json:"transactionCreatedAt"`
+	PayerID              int64     `json:"payerId"`
+	PayerUsername        string    `json:"payerUsername"`
 }
 
 func (q *Queries) GetTransactionsByPayer(ctx context.Context, arg GetTransactionsByPayerParams) ([]GetTransactionsByPayerRow, error) {
@@ -157,10 +157,10 @@ RETURNING id, amount, currency, title, created_at, payer_id
 `
 
 type UpdateTransactionParams struct {
-	Amount   sql.NullString
-	Currency NullCurrency
-	Title    sql.NullString
-	ID       int64
+	Amount   sql.NullString `json:"amount"`
+	Currency NullCurrency   `json:"currency"`
+	Title    sql.NullString `json:"title"`
+	ID       int64          `json:"id"`
 }
 
 func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error) {

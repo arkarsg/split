@@ -26,10 +26,10 @@ RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type CreatePaymentParams struct {
-	DebtID   int64
-	DebtorID int64
-	Amount   string
-	Currency Currency
+	DebtID   int64    `json:"debtId"`
+	DebtorID int64    `json:"debtorId"`
+	Amount   string   `json:"amount"`
+	Currency Currency `json:"currency"`
 }
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error) {
@@ -159,10 +159,10 @@ RETURNING id, debt_id, debtor_id, amount, created_at, currency
 `
 
 type UpdatePaymentParams struct {
-	Amount   sql.NullString
-	Currency interface{}
-	DebtId   int64
-	DebtorId int64
+	Amount   sql.NullString `json:"amount"`
+	Currency interface{}    `json:"currency"`
+	DebtId   int64          `json:"debtId"`
+	DebtorId int64          `json:"debtorId"`
 }
 
 func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error) {

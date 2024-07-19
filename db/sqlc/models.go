@@ -30,8 +30,8 @@ func (e *Currency) Scan(src interface{}) error {
 }
 
 type NullCurrency struct {
-	Currency Currency
-	Valid    bool // Valid is true if Currency is not NULL
+	Currency Currency `json:"currency"`
+	Valid    bool     `json:"valid"` // Valid is true if Currency is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -53,38 +53,38 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 }
 
 type Debt struct {
-	ID            int64
-	TransactionID int64
-	SettledAmount string
+	ID            int64  `json:"id"`
+	TransactionID int64  `json:"transactionId"`
+	SettledAmount string `json:"settledAmount"`
 }
 
 type DebtDebtor struct {
-	DebtID   int64
-	DebtorID int64
-	Amount   string
-	Currency Currency
+	DebtID   int64    `json:"debtId"`
+	DebtorID int64    `json:"debtorId"`
+	Amount   string   `json:"amount"`
+	Currency Currency `json:"currency"`
 }
 
 type Payment struct {
-	ID        int64
-	DebtID    int64
-	DebtorID  int64
-	Amount    string
-	CreatedAt time.Time
-	Currency  Currency
+	ID        int64     `json:"id"`
+	DebtID    int64     `json:"debtId"`
+	DebtorID  int64     `json:"debtorId"`
+	Amount    string    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+	Currency  Currency  `json:"currency"`
 }
 
 type Transaction struct {
-	ID        int64
-	Amount    string
-	Currency  Currency
-	Title     string
-	CreatedAt time.Time
-	PayerID   int64
+	ID        int64     `json:"id"`
+	Amount    string    `json:"amount"`
+	Currency  Currency  `json:"currency"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"createdAt"`
+	PayerID   int64     `json:"payerId"`
 }
 
 type User struct {
-	ID       int64
-	Username string
-	Email    string
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }

@@ -80,8 +80,8 @@ RETURNING id, transaction_id, settled_amount
 `
 
 type UpdateDebtParams struct {
-	ID               int64
-	NewSettledAmount string
+	ID               int64  `json:"id"`
+	NewSettledAmount string `json:"newSettledAmount"`
 }
 
 func (q *Queries) UpdateDebt(ctx context.Context, arg UpdateDebtParams) (Debt, error) {
