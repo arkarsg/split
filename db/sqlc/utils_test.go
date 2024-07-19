@@ -70,3 +70,18 @@ func createRandomDebtDebtor() DebtDebtor {
 
 	return dd
 }
+
+func createRandomPayment() Payment {
+	dd := createRandomDebtDebtor()
+	p, _ := testQueries.CreatePayment(
+		context.Background(),
+		CreatePaymentParams{
+			DebtID:   dd.DebtID,
+			DebtorID: dd.DebtorID,
+			Amount:   u.RandomAmount(),
+			Currency: CurrencySGD,
+		},
+	)
+
+	return p
+}
