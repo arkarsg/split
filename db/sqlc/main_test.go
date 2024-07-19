@@ -8,11 +8,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:password@localhost:5432/split_app?sslmode=disable"
-)
-
 var testQueries *Queries
 var testDb *sql.DB
 
