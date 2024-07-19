@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"log"
 	"os"
 	"testing"
 
@@ -18,12 +17,9 @@ var testQueries *Queries
 var testDb *sql.DB
 
 func TestMain(m *testing.M) {
-	var err error
-	testDb, err = sql.Open(dbDriver, dbSource)
-
-	if err != nil {
-		log.Fatal("Cannot connect to database")
-	}
+	testDbContainer := SetUpTestDatabase()
+	defer testDbContainer.TearDown()
+	testDb = testDbContainer.DbInstance
 
 	testQueries = New(testDb)
 
