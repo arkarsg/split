@@ -10,19 +10,13 @@ import (
 	"time"
 
 	u "github.com/arkarsg/splitapp/utils"
+	"github.com/docker/go-connections/nat"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres" // used by migrator
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-)
-
-const (
-	DbDriver   = "postgres"
-	DbName     = "split_test_db"
-	DbUser     = "testuser"
-	DbPassword = "testpassword"
 )
 
 type TestDatabase struct {
@@ -32,18 +26,19 @@ type TestDatabase struct {
 }
 
 func createContainer(c context.Context) (testcontainers.Container, *sql.DB, string, error) {
+	config := u.GetDevDbEnvs()
 	var env = map[string]string{
-		"POSTGRES_PASSWORD": DbPassword,
-		"POSTGRES_USER":     DbUser,
-		"POSTGRES_DB":       DbName,
+		"POSTGRES_PASSWORD": config.DbPassword,
+		"POSTGRES_USER":     config.DbUser,
+		"POSTGRES_DB":       config.DbName,
 	}
-	var port = "5432/tcp"
+	var port = nat.Port(config.DbPort)
 	req := testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			Image:        "postgres:12-alpine",
-			ExposedPorts: []string{port},
+			ExposedPorts: []string{port.Port()},
 			Env:          env,
-			WaitingFor:   wait.ForListeningPort("5432/tcp"),
+			WaitingFor:   wait.ForListeningPort(port),
 		},
 		Started: true,
 	}
@@ -59,13 +54,15 @@ func createContainer(c context.Context) (testcontainers.Container, *sql.DB, stri
 
 	dbAddr := fmt.Sprintf(
 		"%s://%s:%s@localhost:%s/%s?sslmode=disable",
-		DbDriver,
-		DbUser,
-		DbPassword,
+		config.DbDriver,
+		config.DbUser,
+		config.DbPassword,
 		p.Port(),
-		DbName,
+		config.DbName,
 	)
-	db, err := sql.Open(DbDriver, dbAddr)
+
+	fmt.Println(dbAddr)
+	db, err := sql.Open(config.DbDriver, dbAddr)
 	if err != nil {
 		return container, db, dbAddr, fmt.Errorf("failed to esablish connection to %v : %v", dbAddr, err.Error())
 	}
