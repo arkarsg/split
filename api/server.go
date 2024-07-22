@@ -7,7 +7,7 @@ import (
 
 // Server serves HTTP requests for debt service
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
@@ -22,7 +22,7 @@ func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	r = gin.Default()
 	server := &Server{
 		store:  store,

@@ -8,19 +8,24 @@ import (
 	u "github.com/arkarsg/splitapp/utils"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaymentTxParams) (SettleDebtPaymentsTxResult, error)
+}
+
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		Queries: New(db),
 		db:      db,
 	}
 }
 
-func (s *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (s *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 
 	if err != nil {
@@ -53,7 +58,7 @@ type SettleDebtPaymentsTxResult struct {
 
 // SettleDebtPaymentsTx creates a payment of SettleDebtPaymentTxParams.Amount,
 // and increments Debt.SettledAmount by SettleDebtPaymentTxParams.Amount
-func (s *Store) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaymentTxParams) (SettleDebtPaymentsTxResult, error) {
+func (s *SQLStore) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaymentTxParams) (SettleDebtPaymentsTxResult, error) {
 	var result SettleDebtPaymentsTxResult
 	var err error
 
