@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -101,6 +102,96 @@ func TestGetAccountAPI(t *testing.T) {
 	}
 }
 
+func TestCreateUser(t *testing.T) {
+	createUserArgs := db.CreateUserParams{
+		Username: u.RandomUser(),
+		Email:    u.RandomEmail(),
+	}
+
+	testTable := []struct {
+		name          string
+		user          db.CreateUserParams
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, r *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			user: createUserArgs,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.
+					EXPECT().
+					CreateUser(gomock.Any(), gomock.Eq(createUserArgs)).
+					Times(1).
+					Return(db.User{
+						ID:       0,
+						Username: createUserArgs.Username,
+						Email:    createUserArgs.Email,
+					}, nil)
+			},
+			checkResponse: func(t *testing.T, r *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, r.Code)
+				requireBodyMatchCreateUserParmas(t, r.Body, createUserArgs)
+			},
+		},
+		{
+			name: "Internal Server Error",
+			user: createUserArgs,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.
+					EXPECT().
+					CreateUser(gomock.Any(), gomock.Eq(createUserArgs)).
+					Times(1).
+					Return(db.User{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, r *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusInternalServerError, r.Code)
+			},
+		},
+		{
+			name: "Bad Request (Invalid email)",
+			user: db.CreateUserParams{
+				Username: u.RandomUser(),
+				Email:    "invalid_email",
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.
+					EXPECT().
+					CreateUser(gomock.Any(), gomock.Eq(createUserArgs)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, r *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, r.Code)
+			},
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			store := mockdb.NewMockStore(ctrl)
+			testCase.buildStubs(store)
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/users")
+			buf := jsonify(testCase.user)
+			req, err := http.NewRequest(http.MethodPost, url, &buf)
+			assert.NoError(t, err)
+			server.router.ServeHTTP(recorder, req)
+			testCase.checkResponse(t, recorder)
+		})
+	}
+}
+
+func jsonify(obj any) bytes.Buffer {
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(obj)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return buf
+}
+
 func randomUser() db.User {
 	return db.User{
 		ID:       u.RandomInt(1, 1000),
@@ -118,4 +209,15 @@ func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, user, gotUser)
+}
+
+func requireBodyMatchCreateUserParmas(t *testing.T, body *bytes.Buffer, args db.CreateUserParams) {
+	data, err := io.ReadAll(body)
+	assert.NoError(t, err)
+	var gotUser db.User
+	err = json.Unmarshal(data, &gotUser)
+	assert.NoError(t, err)
+
+	assert.Equal(t, args.Username, gotUser.Username)
+	assert.Equal(t, args.Email, gotUser.Email)
 }
