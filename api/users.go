@@ -56,7 +56,7 @@ func (s *Server) getUser(c *gin.Context) {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 	c.JSON(http.StatusOK, user)
