@@ -3,6 +3,8 @@ package api
 import (
 	db "github.com/arkarsg/splitapp/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 // Server serves HTTP requests for debt service
@@ -16,6 +18,8 @@ var r *gin.Engine
 func (s *Server) initRoutes() {
 	s.registerPing(r)
 	s.registerUsers(r)
+	s.registerPayment(r)
+	s.registerTransaction(r)
 }
 
 func errorResponse(err error) gin.H {
@@ -29,6 +33,12 @@ func NewServer(store db.Store) *Server {
 		router: r,
 	}
 	server.initRoutes()
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("moneyamount", moneyAmount)
+		v.RegisterValidation("supportedcurrency", validCurrency)
+	}
+
 	return server
 }
 

@@ -29,6 +29,14 @@ func stringToDecimal(money string) (decimal.Decimal, error) {
 	return price, err
 }
 
+func IsValidAmount(amount string) bool {
+	_, err := stringToDecimal(amount)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func (m *MoneyAmount) MoneyToString() string {
 	return m.Amount.StringFixed(8)
 }
@@ -68,4 +76,8 @@ func MultiplyMoney(m1 MoneyAmount, multiplier float64) MoneyAmount {
 	return MoneyAmount{
 		Amount: newAmount,
 	}
+}
+
+func IsValidCurrency(curr string) bool {
+	return curr == "SGD" || curr == "USD"
 }
