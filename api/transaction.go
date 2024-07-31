@@ -9,9 +9,9 @@ import (
 )
 
 func (s *Server) registerTransaction(r *gin.Engine) {
-	r.GET("/transactions/:id", s.getTransactionById)
-	r.GET("/transactions", s.listTransactions)
-	r.POST("/transactions", s.createTransaction)
+	r.GET("/transaction/:id", s.getTransactionById)
+	r.GET("/transaction", s.listTransactions)
+	r.POST("/transaction", s.createTransactionTx)
 }
 
 type getTransactionRequest struct {
@@ -64,31 +64,31 @@ func (s *Server) listTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, transactions)
 }
 
-type CreateTransactionRequest struct {
+type CreateTransactionDebtTxRequest struct {
 	Amount   string      `json:"amount" binding:"required,moneyamount"`
 	Currency db.Currency `json:"currency" binding:"required,supportedcurrency"`
 	Title    string      `json:"title" binding:"required"`
 	PayerID  int64       `json:"payer_id" binding:"required"`
 }
 
-func (s *Server) createTransaction(c *gin.Context) {
-	var req CreateTransactionRequest
+func (s *Server) createTransactionTx(c *gin.Context) {
+	var req CreateTransactionDebtTxRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	args := db.CreateTransactionParams{
+	args := db.CreateTransactionDebtTxParams{
 		Amount:   req.Amount,
 		Currency: req.Currency,
 		Title:    req.Title,
 		PayerID:  req.PayerID,
 	}
 
-	transaction, err := s.store.CreateTransaction(c, args)
+	res, err := s.store.CreateTransactionDebtTx(c, args)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, transaction)
+	c.JSON(http.StatusOK, res)
 }

@@ -9,9 +9,9 @@ import (
 )
 
 func (s *Server) registerUsers(r *gin.Engine) {
-	r.GET("/users", s.listUsers)
-	r.GET("/users/:id", s.getUser)
-	r.POST("/users", s.createUser)
+	r.GET("/user", s.listUsers)
+	r.GET("/user/:id", s.getUser)
+	r.POST("/user", s.createUser)
 }
 
 type listUsersRequest struct {

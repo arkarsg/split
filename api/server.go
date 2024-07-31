@@ -18,8 +18,9 @@ var r *gin.Engine
 func (s *Server) initRoutes() {
 	s.registerPing(r)
 	s.registerUsers(r)
-	s.registerPayment(r)
 	s.registerTransaction(r)
+	s.registerDebt(r)
+	s.registerPayment(r)
 }
 
 func errorResponse(err error) gin.H {

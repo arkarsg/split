@@ -17,7 +17,7 @@ type createPaymentTxRequest struct {
 	DebtId   int64       `json:"debt_id" binding:"required,min=1"`
 	DebtorId int64       `json:"debtor_id" binding:"required,min=1"`
 	Amount   string      `json:"amount" binding:"required,moneyamount"`
-	Currency db.Currency `json:"currency" binding:"required"`
+	Currency db.Currency `json:"currency" binding:"required,supportedcurrency"`
 }
 
 func (s *Server) createPaymentTx(c *gin.Context) {

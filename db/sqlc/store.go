@@ -11,6 +11,7 @@ import (
 type Store interface {
 	Querier
 	SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaymentTxParams) (SettleDebtPaymentsTxResult, error)
+	CreateTransactionDebtTx(ctx context.Context, args CreateTransactionDebtTxParams) (CreateTransactionDebtTxResult, error)
 }
 
 type SQLStore struct {
@@ -90,6 +91,43 @@ func (s *SQLStore) SettleDebtPaymentsTx(ctx context.Context, args SettleDebtPaym
 		if err != nil {
 			return err
 		}
+		return nil
+	})
+	return result, err
+}
+
+type CreateTransactionDebtTxParams struct {
+	Amount   string
+	Currency Currency
+	Title    string
+	PayerID  int64
+}
+
+type CreateTransactionDebtTxResult struct {
+	Transaction Transaction
+	Debt        Debt
+}
+
+func (s *SQLStore) CreateTransactionDebtTx(ctx context.Context, args CreateTransactionDebtTxParams) (CreateTransactionDebtTxResult, error) {
+	var result CreateTransactionDebtTxResult
+	var err error
+
+	err = s.execTx(ctx, func(q *Queries) error {
+		result.Transaction, err = q.CreateTransaction(ctx, CreateTransactionParams{
+			Amount:   args.Amount,
+			Currency: args.Currency,
+			Title:    args.Title,
+			PayerID:  args.PayerID,
+		})
+		if err != nil {
+			return err
+		}
+
+		result.Debt, err = q.CreateDebt(ctx, result.Transaction.ID)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	return result, err

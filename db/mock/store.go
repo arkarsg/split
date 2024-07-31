@@ -100,6 +100,21 @@ func (mr *MockStoreMockRecorder) CreateTransaction(arg0, arg1 any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransaction", reflect.TypeOf((*MockStore)(nil).CreateTransaction), arg0, arg1)
 }
 
+// CreateTransactionDebtTx mocks base method.
+func (m *MockStore) CreateTransactionDebtTx(arg0 context.Context, arg1 db.CreateTransactionDebtTxParams) (db.CreateTransactionDebtTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTransactionDebtTx", arg0, arg1)
+	ret0, _ := ret[0].(db.CreateTransactionDebtTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTransactionDebtTx indicates an expected call of CreateTransactionDebtTx.
+func (mr *MockStoreMockRecorder) CreateTransactionDebtTx(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransactionDebtTx", reflect.TypeOf((*MockStore)(nil).CreateTransactionDebtTx), arg0, arg1)
+}
+
 // CreateUser mocks base method.
 func (m *MockStore) CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (db.User, error) {
 	m.ctrl.T.Helper()
