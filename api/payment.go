@@ -12,7 +12,6 @@ func (s *Server) registerPayment(r *gin.Engine) {
 	r.POST("/payments", s.createPaymentTx)
 }
 
-// TO DO: Custom validators for Amount and Currency
 type createPaymentTxRequest struct {
 	DebtId   int64       `json:"debt_id" binding:"required,min=1"`
 	DebtorId int64       `json:"debtor_id" binding:"required,min=1"`
