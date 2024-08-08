@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateDebt(ctx context.Context, transactionID int64) (Debt, error)
 	CreateDebtDebtors(ctx context.Context, arg CreateDebtDebtorsParams) (DebtDebtor, error)
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
@@ -19,6 +20,7 @@ type Querier interface {
 	DeletePayment(ctx context.Context, id int64) error
 	DeleteTransaction(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
+	GetAccount(ctx context.Context, username string) (Account, error)
 	GetDebtById(ctx context.Context, id int64) (Debt, error)
 	GetDebtByIdForUpdate(ctx context.Context, id int64) (Debt, error)
 	GetDebtByTransactionId(ctx context.Context, transactionID int64) (Debt, error)
@@ -37,6 +39,7 @@ type Querier interface {
 	UpdateDebtDebtor(ctx context.Context, arg UpdateDebtDebtorParams) (DebtDebtor, error)
 	UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error)
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (Account, error)
 }
 
 var _ Querier = (*Queries)(nil)
