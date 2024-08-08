@@ -4,17 +4,17 @@ import (
 	"context"
 	"testing"
 
-	u "github.com/arkarsg/splitapp/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateUser(t *testing.T) {
+	account := createRandomAccount()
 	test_input := CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
+		Username: account.Username,
+		Email:    account.Email,
 	}
-	user, err := createRandomUser(test_input)
+	user, err := testQueries.CreateUser(context.Background(), test_input)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 	assert.Equal(t, test_input.Username, user.Username)
@@ -22,12 +22,12 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestGetUserById(t *testing.T) {
-	test_input := CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
+	account := createRandomAccount()
+	args := CreateUserParams{
+		Username: account.Username,
+		Email:    account.Email,
 	}
-
-	expectedUser, _ := createRandomUser(test_input)
+	expectedUser, _ := testQueries.CreateUser(context.Background(), args)
 	actualUser, err := testQueries.GetUserById(
 		context.Background(),
 		expectedUser.ID,
@@ -38,12 +38,7 @@ func TestGetUserById(t *testing.T) {
 }
 
 func TestGetUserByUsername(t *testing.T) {
-	test_input := CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
-	}
-
-	expectedUser, _ := createRandomUser(test_input)
+	expectedUser := createRandomUser()
 	actualUser, err := testQueries.GetUserByUsername(
 		context.Background(),
 		expectedUser.Username,
@@ -64,11 +59,7 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	testUserParams := CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
-	}
-	testUser, _ := createRandomUser(testUserParams)
+	testUser := createRandomUser()
 	err := testQueries.DeleteUser(context.Background(), testUser.ID)
 	require.NoError(t, err)
 

@@ -13,10 +13,7 @@ func TestSettleDebtPaymentsTx(t *testing.T) {
 	store := NewStore(testDb)
 
 	debt1 := createRandomDebt()
-	debtor1, _ := createRandomUser(CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
-	})
+	debtor1 := createRandomUser()
 
 	// run $n$ concurrent payments
 	n := 5

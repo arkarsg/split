@@ -114,27 +114,30 @@ func (t *TestDatabase) TearDown() {
 	_ = t.container.Terminate(context.Background())
 }
 
-func createRandomUser(test_input CreateUserParams) (User, error) {
-	user, err := testQueries.CreateUser(context.Background(), test_input)
-	return user, err
+func createRandomAccount() Account {
+	test_input := CreateAccountParams{
+		Username:       u.RandomString(10),
+		HashedPassword: u.RandomString(10),
+		FullName:       u.RandomUser(),
+		Email:          u.RandomEmail(),
+	}
+
+	account, _ := testQueries.CreateAccount(context.Background(), test_input)
+	return account
+}
+
+func createRandomUser() User {
+	account := createRandomAccount()
+	args := CreateUserParams{
+		Username: account.Username,
+		Email:    account.Email,
+	}
+	user, _ := testQueries.CreateUser(context.Background(), args)
+	return user
 }
 
 func createRandomTransaction() Transaction {
-	var user User
-	var err error
-	user, err = testQueries.GetUserById(
-		context.Background(),
-		1,
-	)
-
-	if err != nil {
-		user, _ = testQueries.CreateUser(
-			context.Background(),
-			CreateUserParams{
-				Username: u.RandomUser(),
-				Email:    u.RandomEmail(),
-			})
-	}
+	user := createRandomUser()
 
 	txnParams := CreateTransactionParams{
 		Amount:   u.RandomAmount(),
@@ -159,10 +162,7 @@ func createRandomDebt() Debt {
 }
 
 func createRandomDebtDebtor() DebtDebtor {
-	debtor, _ := createRandomUser(CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
-	})
+	debtor := createRandomUser()
 	debt := createRandomDebt()
 
 	createDebtDebtorsParams := CreateDebtDebtorsParams{
