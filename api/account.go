@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	db "github.com/arkarsg/splitapp/db/sqlc"
 	u "github.com/arkarsg/splitapp/utils"
@@ -45,6 +46,14 @@ type createAccountRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 }
 
+type createAccountResponse struct {
+	Username          string    `json:"username"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
 func (s *Server) createAccount(c *gin.Context) {
 	var req createAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,7 +74,7 @@ func (s *Server) createAccount(c *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user, err := s.store.CreateAccount(c, createAccountArgs)
+	account, err := s.store.CreateAccount(c, createAccountArgs)
 	if err != nil {
 		if pqError, ok := err.(*pq.Error); ok {
 			switch pqError.Code.Name() {
@@ -77,5 +86,14 @@ func (s *Server) createAccount(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, user)
+
+	// wrap Account in a response struct to hide hashed password
+	resp := createAccountResponse{
+		Username:          account.Username,
+		Email:             account.Email,
+		FullName:          account.FullName,
+		PasswordChangedAt: account.PasswordChangedAt,
+		CreatedAt:         account.CreatedAt,
+	}
+	c.JSON(http.StatusOK, resp)
 }
