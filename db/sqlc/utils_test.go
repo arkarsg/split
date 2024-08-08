@@ -115,10 +115,10 @@ func (t *TestDatabase) TearDown() {
 }
 
 func createRandomAccount() Account {
-	hashed_password, _ := u.HashPassword(u.RandomString(10))
+	hashedPassword, _ := u.HashPassword(u.RandomString(10))
 	test_input := CreateAccountParams{
 		Username:       u.RandomString(10),
-		HashedPassword: hashed_password,
+		HashedPassword: hashedPassword,
 		FullName:       u.RandomUser(),
 		Email:          u.RandomEmail(),
 	}

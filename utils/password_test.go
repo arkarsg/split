@@ -26,3 +26,10 @@ func TestWrongPassword(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, CheckPasswordHash(RandomString(10), hashed))
 }
+
+func TestHashPasswordTwiceCreatesDifferentHash(t *testing.T) {
+	password := RandomString(10)
+	hashOne, _ := HashPassword(password)
+	hashTwo, _ := HashPassword(password)
+	assert.NotEqual(t, hashOne, hashTwo)
+}
