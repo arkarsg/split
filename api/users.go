@@ -6,6 +6,7 @@ import (
 
 	db "github.com/arkarsg/splitapp/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 func (s *Server) registerUsers(r *gin.Engine) {
@@ -81,6 +82,13 @@ func (s *Server) createUser(c *gin.Context) {
 
 	user, err := s.store.CreateUser(c, createUserArgs)
 	if err != nil {
+		if pqError, ok := err.(*pq.Error); ok {
+			switch pqError.Code.Name() {
+			case "foreign_key_violation":
+				c.JSON(http.StatusForbidden, errorResponse((err)))
+				return
+			}
+		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
