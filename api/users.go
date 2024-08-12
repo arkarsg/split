@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (s *Server) registerUser(r *gin.Engine) {
+func (s *Server) registerUser(r gin.IRoutes) {
 	r.GET("/user", s.listUsers)
 	r.GET("/user/:id", s.getUser)
 	r.POST("/user", s.createUser)

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) registerTransaction(r *gin.Engine) {
+func (s *Server) registerTransaction(r gin.IRoutes) {
 	r.GET("/transaction/:id", s.getTransactionById)
 	r.GET("/transaction", s.listTransactions)
 	r.POST("/transaction", s.createTransactionTx)

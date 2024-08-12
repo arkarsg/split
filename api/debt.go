@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) registerDebt(r *gin.Engine) {
+func (s *Server) registerDebt(r gin.IRoutes) {
 	r.GET("/debt/:id", s.getDebt)
 	r.GET("/debt", s.getDebtByTransactionID)
 	r.GET("/debt/:id/debtors", s.getDebtorsByDebt)
