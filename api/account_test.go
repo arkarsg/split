@@ -175,8 +175,8 @@ func (a *AccountMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	ok = u.CheckPasswordHash(a.plainPassword, arg.HashedPassword)
-	if !ok {
+	err := u.CheckPasswordHash(a.plainPassword, arg.HashedPassword)
+	if err != nil {
 		return false
 	}
 
