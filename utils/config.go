@@ -18,14 +18,10 @@ type DbEnvs struct {
 	DbPort     string `mapstructure:"db_port"`
 }
 
-type DbConfig struct {
-	envs map[string]*DbEnvs
-}
-
 type ServerEnvs struct {
 	Path    string `mapstructure:"path"`
 	Port    string `mapstructure:"port"`
-	Address string
+	Address string // Derived field.
 }
 
 type TokenEnvs struct {
@@ -34,64 +30,51 @@ type TokenEnvs struct {
 }
 
 type ServerConfig struct {
-	Db    DbConfig
-	Ports ServerEnvs
-	Token TokenEnvs
+	Db     map[string]*DbEnvs
+	Server ServerEnvs
+	Token  TokenEnvs
 }
 
-var dbConfig DbConfig
-var serverEnvs ServerEnvs
-var tokenEnvs TokenEnvs
-var Config ServerConfig = ServerConfig{}
+var config ServerConfig
 
 func init() {
-	dbConfig = DbConfig{}
 	_, filename, _, _ := runtime.Caller(0)
-	configPath := filepath.Dir(filename)
-	configPath = filepath.Clean(filepath.Join(configPath, ".."))
+	configPath := filepath.Join(filepath.Dir(filename), "..")
+
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatal("Can't find config.yaml file: ", err)
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Can't find config.yaml file: %v", err)
 	}
 
-	err = viper.UnmarshalKey("db", &dbConfig.envs)
-	if err != nil {
-		log.Fatal("DB Configs can't be loaded: ", err)
+	if err := viper.Unmarshal(&config); err != nil {
+		log.Fatalf("Failed to unmarshal configuration: %v", err)
 	}
-	Config.Db = dbConfig
 
-	err = viper.UnmarshalKey("server", &serverEnvs)
-	if err != nil {
-		log.Fatal("Server Configs can't be loaded: ", err)
-	}
-	serverEnvs.Address = serverEnvs.Path + ":" + serverEnvs.Port
-	Config.Ports = serverEnvs
-
-	err = viper.UnmarshalKey("token", &tokenEnvs)
-	if err != nil {
-		log.Fatal("Token Configs can't be loaded: ", err)
-	}
-	Config.Token = tokenEnvs
+	config.Server.Address = fmt.Sprintf("%s:%s", config.Server.Path, config.Server.Port)
 }
 
+// Function to retrieve the entire server configuration.
 func GetConfig() ServerConfig {
-	return Config
+	return config
 }
 
+// Function to retrieve development database environment variables.
 func GetDevDbEnvs() DbEnvs {
-	return *Config.Db.envs["dev_db"]
+	return *config.Db["dev_db"]
 }
 
+// Function to retrieve test containers database environment variables.
 func GetTestcontainersEnvs() DbEnvs {
-	return *Config.Db.envs["testcontainers_db"]
+	return *config.Db["testcontainers_db"]
 }
 
+// Function to construct and retrieve the database source connection string.
 func GetDevDbSource() string {
 	env := GetDevDbEnvs()
-	dbAddr := fmt.Sprintf(
+	return fmt.Sprintf(
 		"%s://%s:%s@localhost:%s/%s?sslmode=disable",
 		env.DbDriver,
 		env.DbUser,
@@ -99,13 +82,14 @@ func GetDevDbSource() string {
 		env.DbPort,
 		env.DbName,
 	)
-	return dbAddr
 }
 
+// Function to retrieve server environment variables.
 func GetServerEnvs() ServerEnvs {
-	return Config.Ports
+	return config.Server
 }
 
+// Function to retrieve token environment variables.
 func GetTokenEnvs() TokenEnvs {
-	return Config.Token
+	return config.Token
 }
