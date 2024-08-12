@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -27,8 +28,21 @@ type ServerEnvs struct {
 	Address string
 }
 
+type TokenEnvs struct {
+	SymmetricKey   string        `mapstructure:"symmetric_key"`
+	AccessDuration time.Duration `mapstructure:"access_duration"`
+}
+
+type ServerConfig struct {
+	Db    DbConfig
+	Ports ServerEnvs
+	Token TokenEnvs
+}
+
 var dbConfig DbConfig
 var serverEnvs ServerEnvs
+var tokenEnvs TokenEnvs
+var Config ServerConfig = ServerConfig{}
 
 func init() {
 	dbConfig = DbConfig{}
@@ -47,20 +61,32 @@ func init() {
 	if err != nil {
 		log.Fatal("DB Configs can't be loaded: ", err)
 	}
+	Config.Db = dbConfig
 
 	err = viper.UnmarshalKey("server", &serverEnvs)
 	if err != nil {
 		log.Fatal("Server Configs can't be loaded: ", err)
 	}
 	serverEnvs.Address = serverEnvs.Path + ":" + serverEnvs.Port
+	Config.Ports = serverEnvs
+
+	err = viper.UnmarshalKey("token", &tokenEnvs)
+	if err != nil {
+		log.Fatal("Token Configs can't be loaded: ", err)
+	}
+	Config.Token = tokenEnvs
+}
+
+func GetConfig() ServerConfig {
+	return Config
 }
 
 func GetDevDbEnvs() DbEnvs {
-	return *dbConfig.envs["dev_db"]
+	return *Config.Db.envs["dev_db"]
 }
 
 func GetTestcontainersEnvs() DbEnvs {
-	return *dbConfig.envs["testcontainers_db"]
+	return *Config.Db.envs["testcontainers_db"]
 }
 
 func GetDevDbSource() string {
@@ -77,5 +103,9 @@ func GetDevDbSource() string {
 }
 
 func GetServerEnvs() ServerEnvs {
-	return serverEnvs
+	return Config.Ports
+}
+
+func GetTokenEnvs() TokenEnvs {
+	return Config.Token
 }

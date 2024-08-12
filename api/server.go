@@ -1,7 +1,11 @@
 package api
 
 import (
+	"fmt"
+
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
+	"github.com/arkarsg/splitapp/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -9,8 +13,10 @@ import (
 
 // Server serves HTTP requests for debt service
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     utils.ServerConfig
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.TokenMaker
 }
 
 var r *gin.Engine
@@ -28,11 +34,17 @@ func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
-func NewServer(store db.Store) *Server {
+func NewServer(config utils.ServerConfig, store db.Store) (*Server, error) {
 	r = gin.Default()
+	pasetoTokenMaker, err := token.NewPasetoMaker(config.Token.SymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot create token maker: %w", err)
+	}
 	server := &Server{
-		store:  store,
-		router: r,
+		config:     utils.GetConfig(),
+		store:      store,
+		router:     r,
+		tokenMaker: pasetoTokenMaker,
 	}
 	server.initRoutes()
 
@@ -41,7 +53,7 @@ func NewServer(store db.Store) *Server {
 		v.RegisterValidation("supportedcurrency", validCurrency)
 	}
 
-	return server
+	return server, nil
 }
 
 func (server *Server) Start(address string) error {

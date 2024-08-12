@@ -133,7 +133,7 @@ func TestCreateAccount(t *testing.T) {
 			defer ctrl.Finish()
 			store := mockdb.NewMockStore(ctrl)
 			testCase.buildStubs(store)
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := "/account"
 			buf := jsonify(testCase.body)

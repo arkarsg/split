@@ -1,0 +1,19 @@
+db:
+  dev_db:
+    db_user:
+    db_password:
+    db_driver:
+    db_name:
+    db_port:
+  testcontainers_db:
+    db_user:
+    db_password:
+    db_driver:
+    db_name:
+    db_port:
+server:
+  path:
+  port:
+token:
+  symmetric_key:
+  access_duration:

@@ -48,7 +48,7 @@ func TestGetTransactionAPI(t *testing.T) {
 			defer ctrl.Finish()
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/transaction/%v", tc.transactionID)
 			req, err := http.NewRequest(http.MethodGet, url, nil)

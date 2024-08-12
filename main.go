@@ -17,6 +17,7 @@ const (
 )
 
 func main() {
+	config := u.GetConfig()
 	dbEnvs := u.GetDevDbEnvs()
 	serverEnvs := u.GetServerEnvs()
 
@@ -27,7 +28,10 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store)
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("🛑 Cannot create server: ", err)
+	}
 
 	err = server.Start(serverEnvs.Address)
 	if err != nil {
