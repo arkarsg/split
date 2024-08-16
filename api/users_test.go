@@ -10,26 +10,33 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	mockdb "github.com/arkarsg/splitapp/db/mock"
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
 	u "github.com/arkarsg/splitapp/utils"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
-func TestGetAccountAPI(t *testing.T) {
-	user := randomUser()
+func TestGetUserAPI(t *testing.T) {
+	acc, _ := createRandomAccount(t)
+	user := randomUser(acc.Username)
 
 	testTable := []struct {
 		name          string
 		userID        int64
+		setUpAuth     func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, r *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			userID: user.ID,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", user.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -45,6 +52,9 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:   "Not Found",
 			userID: user.ID,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", "user", time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -59,6 +69,9 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:   "Internal Server Error",
 			userID: user.ID,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", "user", time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -73,6 +86,9 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:   "Invalid ID",
 			userID: 0,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", "user", time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -89,13 +105,18 @@ func TestGetAccountAPI(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
+
 			store := mockdb.NewMockStore(ctrl)
 			testCase.buildStubs(store)
+
 			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
+
 			url := fmt.Sprintf("/user/%v", testCase.userID)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			assert.NoError(t, err)
+
+			testCase.setUpAuth(t, req, server.tokenMaker)
 			server.router.ServeHTTP(recorder, req)
 			testCase.checkResponse(t, recorder)
 		})
@@ -103,20 +124,26 @@ func TestGetAccountAPI(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
+	acc, _ := createRandomAccount(t)
+	usr := randomUser(acc.Username)
 	createUserArgs := db.CreateUserParams{
-		Username: u.RandomUser(),
-		Email:    u.RandomEmail(),
+		Username: usr.Username,
+		Email:    usr.Email,
 	}
 
 	testTable := []struct {
 		name          string
 		user          db.CreateUserParams
+		setUpAuth     func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, r *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			user: createUserArgs,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", usr.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -136,6 +163,9 @@ func TestCreateUser(t *testing.T) {
 		{
 			name: "Internal Server Error",
 			user: createUserArgs,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", usr.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -153,6 +183,9 @@ func TestCreateUser(t *testing.T) {
 				Username: u.RandomUser(),
 				Email:    "invalid_email",
 			},
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", "user", time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -169,14 +202,19 @@ func TestCreateUser(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
+
 			store := mockdb.NewMockStore(ctrl)
 			testCase.buildStubs(store)
+
 			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/user")
 			buf := jsonify(testCase.user)
+
 			req, err := http.NewRequest(http.MethodPost, url, &buf)
 			assert.NoError(t, err)
+
+			testCase.setUpAuth(t, req, server.tokenMaker)
 			server.router.ServeHTTP(recorder, req)
 			testCase.checkResponse(t, recorder)
 		})
@@ -192,10 +230,10 @@ func jsonify(obj any) bytes.Buffer {
 	return buf
 }
 
-func randomUser() db.User {
+func randomUser(owner string) db.User {
 	return db.User{
 		ID:       u.RandomInt(1, 1000),
-		Username: u.RandomUser(),
+		Username: owner,
 		Email:    u.RandomEmail(),
 	}
 }

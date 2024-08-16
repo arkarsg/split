@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	mockdb "github.com/arkarsg/splitapp/db/mock"
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
 	u "github.com/arkarsg/splitapp/utils"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
@@ -22,12 +24,16 @@ func TestGetTransactionAPI(t *testing.T) {
 	testTable := []struct {
 		name          string
 		transactionID int64
+		setUpAuth     func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, r *httptest.ResponseRecorder)
 	}{
 		{
 			name:          "OK",
 			transactionID: transaction.ID,
+			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
+				addAuth(t, request, tokenMaker, "bearer", "xxx", time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
@@ -46,13 +52,17 @@ func TestGetTransactionAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
+
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 			server := newTestServer(t, store)
+
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/transaction/%v", tc.transactionID)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			assert.NoError(t, err)
+
+			tc.setUpAuth(t, req, server.tokenMaker)
 			server.router.ServeHTTP(recorder, req)
 			tc.checkResponse(t, recorder)
 		})
