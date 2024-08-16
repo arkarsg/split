@@ -2,9 +2,11 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,6 +36,13 @@ func (s *Server) getTransactionById(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if transaction.PayerUsername != authPayload.Username {
+		err := errors.New("Transaction does not belong to the authorized user")
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	c.JSON(http.StatusOK, transaction)
 }
 
@@ -47,6 +56,14 @@ func (s *Server) listTransactions(c *gin.Context) {
 	var req listTransactionsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	user, err := s.store.GetUserById(c, req.PayerID)
+	if user.Username != authPayload.Username {
+		err := errors.New("Unauthorized to view user's transactions")
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 

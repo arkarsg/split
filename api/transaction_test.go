@@ -32,7 +32,7 @@ func TestGetTransactionAPI(t *testing.T) {
 			name:          "OK",
 			transactionID: transaction.TransactionID,
 			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
-				addAuth(t, request, tokenMaker, "bearer", "xxx", time.Minute)
+				addAuth(t, request, tokenMaker, "bearer", transaction.PayerUsername, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
