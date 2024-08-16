@@ -2,15 +2,16 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 )
 
 func (s *Server) registerUser(r gin.IRoutes) {
-	r.GET("/user", s.listUsers)
 	r.GET("/user/:id", s.getUser)
 	r.POST("/user", s.createUser)
 }
@@ -60,12 +61,18 @@ func (s *Server) getUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if user.Username != authPayload.Username {
+		err := errors.New("Account does not belong to the authorized user")
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	c.JSON(http.StatusOK, user)
 }
 
 type createUserRequest struct {
-	Username string `json:"username" binding:"required,alphanum"`
-	Email    string `json:"email" binding:"required,email"`
+	Email string `json:"email" binding:"required,email"`
 }
 
 func (s *Server) createUser(c *gin.Context) {
@@ -75,8 +82,10 @@ func (s *Server) createUser(c *gin.Context) {
 		return
 	}
 
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	createUserArgs := db.CreateUserParams{
-		Username: req.Username,
+		Username: authPayload.Username,
 		Email:    req.Email,
 	}
 
