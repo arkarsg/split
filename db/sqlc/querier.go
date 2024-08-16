@@ -30,7 +30,7 @@ type Querier interface {
 	GetPaymentsByDebtId(ctx context.Context, debtID int64) ([]Payment, error)
 	GetPaymentsByDebtorId(ctx context.Context, debtorID int64) ([]Payment, error)
 	GetPaymentsById(ctx context.Context, id int64) (Payment, error)
-	GetTransactionById(ctx context.Context, id int64) (Transaction, error)
+	GetTransactionById(ctx context.Context, id int64) (GetTransactionByIdRow, error)
 	GetTransactionsByPayer(ctx context.Context, arg GetTransactionsByPayerParams) ([]GetTransactionsByPayerRow, error)
 	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)

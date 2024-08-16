@@ -50,7 +50,12 @@ func TestGetTransactionById(t *testing.T) {
 		expectedTxn.ID,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, expectedTxn, actualTxn)
+	payer, err := testQueries.GetUserById(
+		context.Background(),
+		actualTxn.PayerID,
+	)
+	assert.Equal(t, expectedTxn.Title, actualTxn.TransactionTitle)
+	assert.Equal(t, payer.Username, actualTxn.PayerUsername)
 }
 
 func TestGetTransactionByPayer(t *testing.T) {

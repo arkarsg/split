@@ -63,20 +63,43 @@ func (q *Queries) DeleteTransaction(ctx context.Context, id int64) error {
 }
 
 const getTransactionById = `-- name: GetTransactionById :one
-SELECT id, amount, currency, title, created_at, payer_id FROM transactions
-WHERE id = $1 LIMIT 1
+SELECT
+    t.id as transaction_id,
+    t.amount as transaction_amount,
+    t.currency as transaction_currency,
+    t.title as transaction_title,
+    t.created_at as transaction_created_at,
+    u.id as payer_id,
+    u.username as payer_username
+FROM
+    transactions t, users u
+WHERE
+    t.id = $1
+AND
+    t.payer_id = u.id
 `
 
-func (q *Queries) GetTransactionById(ctx context.Context, id int64) (Transaction, error) {
+type GetTransactionByIdRow struct {
+	TransactionID        int64     `json:"transaction_id"`
+	TransactionAmount    string    `json:"transaction_amount"`
+	TransactionCurrency  Currency  `json:"transaction_currency"`
+	TransactionTitle     string    `json:"transaction_title"`
+	TransactionCreatedAt time.Time `json:"transaction_created_at"`
+	PayerID              int64     `json:"payer_id"`
+	PayerUsername        string    `json:"payer_username"`
+}
+
+func (q *Queries) GetTransactionById(ctx context.Context, id int64) (GetTransactionByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getTransactionById, id)
-	var i Transaction
+	var i GetTransactionByIdRow
 	err := row.Scan(
-		&i.ID,
-		&i.Amount,
-		&i.Currency,
-		&i.Title,
-		&i.CreatedAt,
+		&i.TransactionID,
+		&i.TransactionAmount,
+		&i.TransactionCurrency,
+		&i.TransactionTitle,
+		&i.TransactionCreatedAt,
 		&i.PayerID,
+		&i.PayerUsername,
 	)
 	return i, err
 }

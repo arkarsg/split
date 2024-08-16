@@ -13,8 +13,20 @@ INSERT INTO transactions (
 RETURNING *;
 
 -- name: GetTransactionById :one
-SELECT * FROM transactions
-WHERE id = $1 LIMIT 1;
+SELECT
+    t.id as transaction_id,
+    t.amount as transaction_amount,
+    t.currency as transaction_currency,
+    t.title as transaction_title,
+    t.created_at as transaction_created_at,
+    u.id as payer_id,
+    u.username as payer_username
+FROM
+    transactions t, users u
+WHERE
+    t.id = $1
+AND
+    t.payer_id = u.id;
 
 -- name: GetTransactionsByPayer :many
 SELECT

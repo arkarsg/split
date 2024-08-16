@@ -30,14 +30,14 @@ func TestGetTransactionAPI(t *testing.T) {
 	}{
 		{
 			name:          "OK",
-			transactionID: transaction.ID,
+			transactionID: transaction.TransactionID,
 			setUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.TokenMaker) {
 				addAuth(t, request, tokenMaker, "bearer", "xxx", time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.
 					EXPECT().
-					GetTransactionById(gomock.Any(), gomock.Eq(transaction.ID)).
+					GetTransactionById(gomock.Any(), gomock.Eq(transaction.TransactionID)).
 					Times(1).
 					Return(transaction, nil)
 			},
@@ -69,21 +69,22 @@ func TestGetTransactionAPI(t *testing.T) {
 	}
 }
 
-func randomTransaction() db.Transaction {
-	return db.Transaction{
-		ID:       u.RandomInt(1, 1000),
-		Amount:   u.RandomAmount(),
-		Currency: db.CurrencySGD,
-		Title:    u.RandomString(6),
-		PayerID:  u.RandomInt(1, 10),
+func randomTransaction() db.GetTransactionByIdRow {
+	return db.GetTransactionByIdRow{
+		TransactionID:       u.RandomInt(1, 1000),
+		TransactionAmount:   u.RandomAmount(),
+		TransactionCurrency: db.CurrencySGD,
+		TransactionTitle:    u.RandomString(6),
+		PayerID:             u.RandomInt(1, 10),
+		PayerUsername:       u.RandomUser(),
 	}
 }
 
-func requireBodyMatchTransaction(t *testing.T, body *bytes.Buffer, transaction db.Transaction) {
+func requireBodyMatchTransaction(t *testing.T, body *bytes.Buffer, transaction db.GetTransactionByIdRow) {
 	data, err := io.ReadAll(body)
 	assert.NoError(t, err)
-	var haveTransaction db.Transaction
-	err = json.Unmarshal(data, &haveTransaction)
+	var haveTransactionResult db.GetTransactionByIdRow
+	err = json.Unmarshal(data, &haveTransactionResult)
 	assert.NoError(t, err)
-	assert.Equal(t, transaction, haveTransaction)
+	assert.Equal(t, transaction, haveTransactionResult)
 }

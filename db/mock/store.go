@@ -366,10 +366,10 @@ func (mr *MockStoreMockRecorder) GetPaymentsById(arg0, arg1 any) *gomock.Call {
 }
 
 // GetTransactionById mocks base method.
-func (m *MockStore) GetTransactionById(arg0 context.Context, arg1 int64) (db.Transaction, error) {
+func (m *MockStore) GetTransactionById(arg0 context.Context, arg1 int64) (db.GetTransactionByIdRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTransactionById", arg0, arg1)
-	ret0, _ := ret[0].(db.Transaction)
+	ret0, _ := ret[0].(db.GetTransactionByIdRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
