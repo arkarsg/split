@@ -2,9 +2,11 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	db "github.com/arkarsg/splitapp/db/sqlc"
+	"github.com/arkarsg/splitapp/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +28,19 @@ func (s *Server) createPaymentTx(c *gin.Context) {
 		return
 	}
 
-	// validation here
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	usr, err := s.store.GetUserById(c, req.DebtorId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+
+	if usr.Username != authPayload.Username {
+		err := errors.New("Unauthorized to make payment")
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	if !s.isValidPaymentRequest(c, req) {
 		return
 	}
