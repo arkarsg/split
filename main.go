@@ -10,12 +10,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:password@localhost:5432/split_app?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
 	config := u.GetConfig()
 	dbEnvs := u.GetDevDbEnvs()

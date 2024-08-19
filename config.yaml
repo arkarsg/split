@@ -2,6 +2,7 @@ db:
   dev_db:
     db_user: root
     db_password: password
+    container_name: split-db
     db_driver: postgres
     db_name: split_db
     db_port: "5432"
