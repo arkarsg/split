@@ -1,3 +1,4 @@
+migration_url:
 db:
   dev_db:
     db_user:
