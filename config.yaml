@@ -1,0 +1,21 @@
+migration_url: "file://db/migrations"
+db:
+  dev_db:
+    db_user: root
+    db_password: password
+    db_driver: postgres
+    container_name: split-db
+    db_name: split_db
+    db_port: "5432"
+  testcontainers_db:
+    db_user: testuser
+    db_password: testpassword
+    db_driver: postgres
+    db_name: split_test_db
+    db_port: "5432"
+server:
+  path: "0.0.0.0"
+  port: "8080"
+token:
+  symmetric_key: Ps6nuTGiaa2invkQ6uVC5be0DfHPpJnh
+  access_duration: 15m
