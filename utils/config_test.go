@@ -16,7 +16,7 @@ func TestConfigLoad(t *testing.T) {
 
 func TestDbSource(t *testing.T) {
 	src := GetDevDbSource()
-	assert.Equal(t, "postgres://root:password@localhost:5432/split_db?sslmode=disable", src)
+	assert.Equal(t, "postgres://root:password@split-db:5432/split_db?sslmode=disable", src)
 }
 
 func TestTokenEnvs(t *testing.T) {
