@@ -27,5 +27,5 @@ func TestTokenEnvs(t *testing.T) {
 
 func TestGetMirationUrl(t *testing.T) {
 	c := GetConfig()
-	assert.Equal(t, "file://db/migration", c.MigrationUrl)
+	assert.Equal(t, "file://db/migrations", c.MigrationUrl)
 }
