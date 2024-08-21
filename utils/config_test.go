@@ -24,3 +24,8 @@ func TestTokenEnvs(t *testing.T) {
 	assert.Equal(t, time.Minute*15, envs.AccessDuration)
 	assert.Len(t, envs.SymmetricKey, 32)
 }
+
+func TestGetMirationUrl(t *testing.T) {
+	c := GetConfig()
+	assert.Equal(t, "file://db/migration", c.MigrationUrl)
+}

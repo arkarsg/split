@@ -31,9 +31,10 @@ type TokenEnvs struct {
 }
 
 type ServerConfig struct {
-	Db     map[string]*DbEnvs
-	Server ServerEnvs
-	Token  TokenEnvs
+	MigrationUrl string `mapstructure:"migration_url"`
+	Db           map[string]*DbEnvs
+	Server       ServerEnvs
+	Token        TokenEnvs
 }
 
 var config ServerConfig

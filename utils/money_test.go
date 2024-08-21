@@ -136,7 +136,7 @@ func TestSubtractMoney(t *testing.T) {
 			m1:       MoneyAmount{Amount: decimal.NewFromFloat(3.00)},
 			m2:       MoneyAmount{Amount: decimal.NewFromFloat(5.00)},
 			expected: MoneyAmount{},
-			errMsg:   "Subtraction will cause negative value",
+			errMsg:   "subtraction will cause negative value",
 		},
 	}
 
