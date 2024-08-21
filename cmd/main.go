@@ -10,12 +10,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:password@localhost:5432/split_app?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
 	config := u.GetConfig()
 	dbEnvs := u.GetDevDbEnvs()
@@ -26,6 +20,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot connect to database")
 	}
+
+	MustMigrate(u.GetDevDbSource(), config.MigrationUrl)
 
 	store := db.NewStore(conn)
 	server, err := api.NewServer(config, store)

@@ -11,11 +11,12 @@ import (
 )
 
 type DbEnvs struct {
-	DbUser     string `mapstructure:"db_user"`
-	DbPassword string `mapstructure:"db_password"`
-	DbDriver   string `mapstructure:"db_driver"`
-	DbName     string `mapstructure:"db_name"`
-	DbPort     string `mapstructure:"db_port"`
+	DbUser        string `mapstructure:"db_user"`
+	DbPassword    string `mapstructure:"db_password"`
+	ContainerName string `mapstructure:"container_name"`
+	DbDriver      string `mapstructure:"db_driver"`
+	DbName        string `mapstructure:"db_name"`
+	DbPort        string `mapstructure:"db_port"`
 }
 
 type ServerEnvs struct {
@@ -30,9 +31,10 @@ type TokenEnvs struct {
 }
 
 type ServerConfig struct {
-	Db     map[string]*DbEnvs
-	Server ServerEnvs
-	Token  TokenEnvs
+	MigrationUrl string `mapstructure:"migration_url"`
+	Db           map[string]*DbEnvs
+	Server       ServerEnvs
+	Token        TokenEnvs
 }
 
 var config ServerConfig
@@ -75,10 +77,11 @@ func GetTestcontainersEnvs() DbEnvs {
 func GetDevDbSource() string {
 	env := GetDevDbEnvs()
 	return fmt.Sprintf(
-		"%s://%s:%s@localhost:%s/%s?sslmode=disable",
+		"%s://%s:%s@%s:%s/%s?sslmode=disable",
 		env.DbDriver,
 		env.DbUser,
 		env.DbPassword,
+		env.ContainerName,
 		env.DbPort,
 		env.DbName,
 	)

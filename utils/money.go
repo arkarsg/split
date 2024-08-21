@@ -31,10 +31,7 @@ func stringToDecimal(money string) (decimal.Decimal, error) {
 
 func IsValidAmount(amount string) bool {
 	_, err := stringToDecimal(amount)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (m *MoneyAmount) MoneyToString() string {
@@ -65,7 +62,7 @@ func AccumulateMonies(monies []MoneyAmount) MoneyAmount {
 func SubtractMoney(m1 MoneyAmount, m2 MoneyAmount) (MoneyAmount, error) {
 	newAmount := m1.Amount.Sub(m2.Amount)
 	if newAmount.IsNegative() {
-		return MoneyAmount{}, errors.New("Subtraction will cause negative value")
+		return MoneyAmount{}, errors.New("subtraction will cause negative value")
 	}
 	return MoneyAmount{Amount: newAmount}, nil
 }

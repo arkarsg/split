@@ -20,12 +20,14 @@ func TestRandomInt(t *testing.T) {
 // TestRandomString checks if the generated string has the correct length and only contains alphabets
 func TestRandomString(t *testing.T) {
 	n := 10
+	rexpr := regexp.MustCompile("^[a-z]+$")
 	for i := 0; i < 100; i++ {
 		r := RandomString(n)
 		if len(r) != n {
 			t.Errorf("RandomString() = %v, want length %v", r, n)
 		}
-		matched, _ := regexp.MatchString("^[a-z]+$", r)
+		b := ([]byte)(r)
+		matched := rexpr.Match(b)
 		if !matched {
 			t.Errorf("RandomString() = %v, want only alphabets", r)
 		}
