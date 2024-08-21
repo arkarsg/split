@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  split-db:
+  db:
     image: postgres:12-alpine
     environment:
       - POSTGRES_USER=root
@@ -8,7 +8,7 @@ services:
       - POSTGRES_DB=split_db
   api:
     depends_on:
-      - split-db
+      - db
     build:
       context: .
       dockerfile: Dockerfile
