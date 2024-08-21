@@ -1,16 +1,20 @@
 version: "3.9"
 services:
-  db:
+  split-db:
     image: postgres:12-alpine
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=split_db
   api:
     depends_on:
-      - db
+      - split-db
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    entrypoint: [ "/app/wait-for.sh", "split-db:5432", "--", "/app/start.sh" ]
+    command: [ "/app/main" ]
