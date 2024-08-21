@@ -21,6 +21,8 @@ func main() {
 		log.Fatal("Cannot connect to database")
 	}
 
+	MustMigrate(u.GetDevDbSource(), config.MigrationUrl)
+
 	store := db.NewStore(conn)
 	server, err := api.NewServer(config, store)
 	if err != nil {
