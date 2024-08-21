@@ -32,7 +32,7 @@ test:
 
 .PHONY: server
 server:
-	go run main.go
+	go run ./cmd/*.go
 
 .PHONY: mock
 mock:
