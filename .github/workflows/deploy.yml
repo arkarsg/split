@@ -32,4 +32,4 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ env.GHCR_USERNAME }}/${{ env.GHCR_IMAGE }}/${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ env.GHCR_USERNAME }}/${{ env.GHCR_IMAGE }}:${{ env.IMAGE_TAG }}
