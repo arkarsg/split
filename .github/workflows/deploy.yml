@@ -27,7 +27,9 @@ jobs:
         uses: docker/build-push-action@v6
         env:
           IMAGE_TAG: ${{ github.sha }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_IMAGE: split
         with:
-          platform: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.IMAGE_TAG }}
+          tags: ghcr.io/$GHCR_USERNAME/$GHCR_IMAGE/$IMAGE_TAG
