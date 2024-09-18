@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: split-api-deployment
+  namespace: split-api
+  labels:
+    app: split-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: split-api
+  template:
+    metadata:
+      namespace: split-api
+      labels:
+        app: split-api
+    spec:
+      containers:
+        - name: split-container
+          image: ghcr.io/arkarsg/split:latest
+          ports:
+            - containerPort: 8080
