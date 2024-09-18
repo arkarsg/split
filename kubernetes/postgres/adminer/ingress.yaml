@@ -5,9 +5,10 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - http:
+    - host: arkarsg.split
+      http:
         paths:
-          - path: /
+          - path: /db
             pathType: Prefix
             backend:
               service:

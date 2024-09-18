@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: split-container
-          image: ghcr.io/arkarsg/split:b81bca366d236aab99cc5fb31be6e001f8b04cc1
+          image: ghcr.io/arkarsg/split:3553f9699342f0857c4aeb29d69fbfd02c7de575
           ports:
             - containerPort: 8080
