@@ -4,7 +4,7 @@ db:
     db_user: root
     db_password: password
     db_driver: postgres
-    container_name: split-db
+    container_name: postgres
     db_name: split_db
     db_port: "5432"
   testcontainers_db:
