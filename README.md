@@ -57,7 +57,7 @@ kubectl create -f ingress.yaml
 
 In `kubernetes/postgres`,
 
-- Create resources
+1. Create resources
 
 ```
 k create -f postgres-configmap.yaml
@@ -65,4 +65,16 @@ k create -f postgres-pv.yaml
 k create -f postgres-pvc.yaml
 k create -f postgres-statefulset.yaml
 k create -f postgres-service.yaml
+```
+
+2. Login to Adminer with username and password
+
+---
+
+## Deploying the application
+
+In `/kubernetes
+
+```
+k create -f deployment.yaml
 ```
