@@ -15,3 +15,10 @@ spec:
                 name: adminer
                 port:
                   number: 8080
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: split-api-service
+                port:
+                  number: 8000

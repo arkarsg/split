@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: split-api-service
+spec:
+  type: ClusterIP
+  selector:
+    app: split-api
+  ports:
+    - port: 8000
+      targetPort: 8080
+      protocol: TCP
